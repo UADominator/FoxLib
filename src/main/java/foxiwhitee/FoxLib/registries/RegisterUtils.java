@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RegisterUtils {
-    public static final List<Block> blocks = new ArrayList<>();
-    public static final List<Item> items = new ArrayList<>();
-
     public static <T> List<Class<? extends T>> findClasses(String pkg, Class<T> find) {
         try {
             return ClassPath.from(RegisterUtils.class.getClassLoader())
@@ -84,35 +81,40 @@ public class RegisterUtils {
 
     public static void registerBlock(Block block) {
         GameRegistry.registerBlock(block, ItemBlock.class, block.getUnlocalizedName().replace("tile.", ""));
-        blocks.add(block);
-
     }
 
     public static void registerBlock(Block block, Class<? extends ItemBlock> itemBlock) {
         GameRegistry.registerBlock(block, itemBlock, block.getUnlocalizedName().replace("tile.", ""));
-        blocks.add(block);
+    }
+
+    public static void registerBlock(Class<? extends ItemBlock> itemBlock, Block block) {
+        registerBlock(block, itemBlock);
     }
 
     public static void registerBlocks(Block... blocks) {
-        Arrays.stream(blocks).forEach(RegisterUtils::registerBlock);
+        for (Block block : blocks) {
+            RegisterUtils.registerBlock(block);
+        }
     }
 
     public static void registerBlocks(Class<? extends ItemBlock> itemBlock, Block... blocks) {
-        Arrays.stream(blocks).forEach(block -> registerBlock(block, itemBlock));
+        for (Block block : blocks) {
+            RegisterUtils.registerBlock(block, itemBlock);
+        }
     }
 
     public static void registerItem(Item item) {
         GameRegistry.registerItem(item, item.getUnlocalizedName().replace("item.", ""));
-        items.add(item);
     }
 
     public static void registerItem(Item item, String name) {
         GameRegistry.registerItem(item, name);
-        items.add(item);
     }
 
     public static void registerItems(Item... items) {
-        Arrays.stream(items).forEach(RegisterUtils::registerItem);
+        for (Item item : items) {
+            RegisterUtils.registerItem(item);
+        }
     }
 
     public static void registerItemRenderer(Item item, IItemRenderer render) {
