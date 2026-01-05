@@ -5,7 +5,6 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import foxiwhitee.FoxLib.FoxLib;
-import foxiwhitee.FoxLib.block.FoxBaseBlock;
 import foxiwhitee.FoxLib.client.render.StaticRenderHandler;
 import foxiwhitee.FoxLib.config.ConfigHandler;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
@@ -20,7 +19,6 @@ import foxiwhitee.FoxLib.utils.FindDuplicateCraftsScript;
 import foxiwhitee.FoxLib.utils.handler.GuiHandlerRegistry;
 import foxiwhitee.FoxLib.utils.helpers.GuiHandler;
 import foxiwhitee.FoxLib.utils.helpers.ProductivityBlackListHelper;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -35,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CommonProxy {
-    public static final Item PRODUCTIVITY_CARDS = new ItemProductivityCard("productivityCard");
+    public static final Item productivityCards = new ItemProductivityCard("productivityCard");
 
     public void preInit(FMLPreInitializationEvent event) {
         ConfigHandler.loadConfigs(event);
@@ -45,7 +43,7 @@ public class CommonProxy {
         IntegrationLoader.preInit(event);
         StaticRenderHandler.loadStaticRenderData(event);
         if (FoxLibConfig.enableProductivityCards) {
-            RegisterUtils.registerItem(PRODUCTIVITY_CARDS);
+            RegisterUtils.registerItem(productivityCards);
         }
     }
 

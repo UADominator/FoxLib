@@ -11,7 +11,6 @@ import foxiwhitee.FoxLib.commands.CommandHand;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import foxiwhitee.FoxLib.proxy.CommonProxy;
 import foxiwhitee.FoxLib.recipes.RecipesLocation;
-import foxiwhitee.FoxLib.utils.FindDuplicateCraftsScript;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
@@ -30,7 +29,7 @@ public class FoxLib {
     public static final CreativeTabs FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
         @Override
         public Item getTabIconItem() {
-            return CommonProxy.PRODUCTIVITY_CARDS;
+            return CommonProxy.productivityCards;
         }
     };
 
