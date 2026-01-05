@@ -16,8 +16,7 @@ public class StackOreDict {
 
     public boolean check(ItemStack stack, boolean withCount) {
         boolean equals = false;
-        int id = OreDictionary.getOreID(ore);
-        for (ItemStack s : OreDictionary.getOres(id)) {
+        for (ItemStack s : OreDictionary.getOres(ore)) {
             if (OreDictionary.itemMatches(s, stack, false))
                 equals = true;
         }

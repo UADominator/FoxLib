@@ -134,7 +134,7 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
 
     private void addHandler(Map<TileEventType, List<TileEventHandler>> handlerSet, TileEventType value, Method m) {
         List<TileEventHandler> list = handlerSet.computeIfAbsent(value, (k) -> new ArrayList<>());
-        list.add(new TileEventHandler(m, this));
+        list.add(new TileEventHandler(m));
     }
 
     public boolean canBeRotated() {
