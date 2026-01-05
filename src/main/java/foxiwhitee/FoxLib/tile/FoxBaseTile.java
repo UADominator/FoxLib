@@ -2,13 +2,11 @@ package foxiwhitee.FoxLib.tile;
 
 import foxiwhitee.FoxLib.api.orientable.FastOrientableManager;
 import foxiwhitee.FoxLib.api.orientable.IOrientable;
-import foxiwhitee.FoxLib.tile.event.TickableHelper;
 import foxiwhitee.FoxLib.tile.event.TileEvent;
 import foxiwhitee.FoxLib.tile.event.TileEventHandler;
 import foxiwhitee.FoxLib.tile.event.TileEventType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -22,15 +20,12 @@ import java.util.*;
 public class FoxBaseTile extends TileEntity implements IOrientable {
     private static final Map<Class<? extends FoxBaseTile>, Map<TileEventType, List<TileEventHandler>>> HANDLERS = new HashMap();
     private final int orientableId = FastOrientableManager.nextId();
-    private final TickableHelper tickableHelper = new TickableHelper();
 
     public FoxBaseTile() {
     }
 
     public final void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-
-        tickableHelper.readFromNbt(data, this);
 
         if (this.canBeRotated()) {
             ForgeDirection f = ForgeDirection.getOrientation(data.getByte("f_fwd"));
@@ -46,8 +41,6 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
     public final void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
 
-        tickableHelper.writeToNbt(data);
-
         if (this.canBeRotated()) {
             data.setByte("f_fwd", (byte) getForward().ordinal());
             data.setByte("f_up", (byte) getUp().ordinal());
@@ -62,13 +55,6 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
         for(TileEventHandler h : this.getHandlerListFor(TileEventType.TICK)) {
             h.tick(this);
         }
-        if (worldObj.isRemote) {
-            return;
-        }
-        if (tickableHelper.isEmpty()) {
-            tickableHelper.init(this.getHandlerListFor(TileEventType.TICK_SPEED));
-        }
-        tickableHelper.tick();
     }
 
     private boolean readFromStream(ByteBuf data) {
@@ -193,9 +179,5 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
                 this.markForUpdate();
             }
         }
-    }
-
-    protected void awakeTickableFunction(String key) {
-        tickableHelper.awake(key);
     }
 }
