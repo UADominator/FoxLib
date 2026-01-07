@@ -15,6 +15,7 @@ import foxiwhitee.FoxLib.recipes.BaseFoxRecipe;
 import foxiwhitee.FoxLib.recipes.FurnaceRecipeRapper;
 import foxiwhitee.FoxLib.recipes.RecipesHandler;
 import foxiwhitee.FoxLib.registries.RegisterUtils;
+import foxiwhitee.FoxLib.tile.FoxBaseTile;
 import foxiwhitee.FoxLib.utils.FindDuplicateCraftsScript;
 import foxiwhitee.FoxLib.utils.handler.GuiHandlerRegistry;
 import foxiwhitee.FoxLib.utils.helpers.GuiHandler;
@@ -42,6 +43,8 @@ public class CommonProxy {
         NetworkRegistry.INSTANCE.registerGuiHandler(FoxLib.instance, new GuiHandler());
         IntegrationLoader.preInit(event);
         StaticRenderHandler.loadStaticRenderData(event);
+
+        RegisterUtils.registerTile(FoxBaseTile.class);
         if (FoxLibConfig.enableProductivityCards) {
             RegisterUtils.registerItem(productivityCards);
         }
@@ -50,6 +53,7 @@ public class CommonProxy {
     public void init(FMLInitializationEvent event) {
         IntegrationLoader.init(event);
         ProductivityBlackListHelper.registerBlackList(FoxLibConfig.productivityBlackList);
+        ProductivityBlackListHelper.registerBlackListByModId(FoxLibConfig.productivityModsBlackList);
     }
 
     public void postInit(FMLPostInitializationEvent event) {

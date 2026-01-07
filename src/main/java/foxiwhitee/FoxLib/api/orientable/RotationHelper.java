@@ -10,8 +10,8 @@ public class RotationHelper {
             if (forward.offsetY == 0) {
                 return switch (forward) {
                     case NORTH -> 3;
-                    case WEST -> side == 0 ? 1 : 2;
-                    case EAST -> side == 0 ? 2 : 1;
+                    case WEST -> side == 0 ? 2 : 1;
+                    case EAST -> side == 0 ? 1 : 2;
                     default -> 0;
                 };
             } else {

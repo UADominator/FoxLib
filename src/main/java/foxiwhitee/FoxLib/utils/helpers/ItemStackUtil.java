@@ -12,12 +12,10 @@ public class ItemStackUtil {
 
     public static boolean stackEquals(ItemStack stack1, ItemStack stack2, boolean withCount) {
         boolean equals = stack1 != null && stack2 != null && stack1.getItem() == stack2.getItem() &&
-            (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE);
+            (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE) &&
+            ItemStack.areItemStackTagsEqual(stack1, stack2);
         if (equals && withCount) {
             equals = stack1.stackSize == stack2.stackSize;
-        }
-        if (equals && stack1.getTagCompound() != null && stack2.getTagCompound() != null) {
-            equals = stack1.getTagCompound().equals(stack2.getTagCompound());
         }
         return equals;
     }

@@ -7,3 +7,4 @@ tooltip.command.hand.description=%s — показує інформацію пр
 tooltip.command.hand.onlyForPlayers=§cТільки для гравців!
 tooltip.command.hand.null=§7У тебе порожня рука
 tooltip.blacklist=§8На цей предмет не діє ефект продуктивності
+tooltip.whitelist=§7На цей предмет діє ефект продуктивності

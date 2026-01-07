@@ -55,8 +55,16 @@ public class FoxLibConfig {
     @ConfigValue(category = "Productivity.Util", desc = "Adds to the description of blacklisted items that productivity is not working on them")
     public static boolean enableTooltipsBlackList = true;
 
+    @ConfigValue(category = "Productivity", name = "blacklistModsInversion", desc = "Makes a blacklist white")
+    public static boolean productivityModsBlackListInversion = false;
 
-    @ConfigValue(category = "Productivity", name = "blacklist", desc = "Because due to productivity some crafts can be looped and as a result resources will be generated out of nowhere, this blacklist exists. For blocks and items whose names are written in the format <modIs:itemName.meta> productivity will not be applied!")
+    @ConfigValue(category = "Productivity", name = "blacklistItemsInversion", desc = "Makes a blacklist white")
+    public static boolean productivityBlackListInversion = false;
+
+    @ConfigValue(category = "Productivity", name = "blacklistMods", desc = "Adding a modId to the list will blacklist all of its items. \"minecraft\" is allowed to be added")
+    public static String[] productivityModsBlackList = {};
+
+    @ConfigValue(category = "Productivity", name = "blacklistItems", desc = "Because due to productivity some crafts can be looped and as a result resources will be generated out of nowhere, this blacklist exists. For blocks and items whose names are written in the format <modIs:itemName.meta> productivity will not be applied!")
     public static String[] productivityBlackList = {
         "<minecraft:redstone>",
         "<minecraft:redstone_block>",

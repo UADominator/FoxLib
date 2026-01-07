@@ -11,9 +11,13 @@ public class TooltipEventHandler {
     @SubscribeEvent
     public void onTooltip(ItemTooltipEvent event) {
         if (event.itemStack == null) return;
-
-        if (ProductivityBlackListHelper.isInBlackList(event.itemStack)) {
-            event.toolTip.add(StatCollector.translateToLocal("tooltip.blacklist"));
+        String value = ProductivityBlackListHelper.getRestrictionStatus(event.itemStack);
+        switch (value.toLowerCase()) {
+            case "black":
+                event.toolTip.add(StatCollector.translateToLocal("tooltip.blacklist"));
+                break;
+            case "white":
+                event.toolTip.add(StatCollector.translateToLocal("tooltip.whitelist"));
         }
     }
 }
