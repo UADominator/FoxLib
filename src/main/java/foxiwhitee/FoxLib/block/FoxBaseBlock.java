@@ -114,7 +114,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te instanceof FoxBaseTile tile && tile.canBeRotated()) {
+        if (te instanceof IOrientable tile && tile.canBeRotated()) {
             ForgeDirection forward;
             ForgeDirection up;
 

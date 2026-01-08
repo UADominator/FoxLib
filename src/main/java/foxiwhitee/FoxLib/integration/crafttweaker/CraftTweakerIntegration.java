@@ -18,7 +18,6 @@ public class CraftTweakerIntegration implements IIntegration {
     @Override
     public void init(FMLInitializationEvent paramFMLInitializationEvent) {
         MineTweakerAPI.registerClass(DynamicIntegration.class);
-        System.out.print(0);
     }
 
     @Override

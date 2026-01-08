@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -104,61 +105,60 @@ public class RecipesHandler {
 
     public static List<JsonObject> loadJsonResources(Class<?> clazz, String path)
         throws IOException, URISyntaxException {
+
         List<JsonObject> result = new ArrayList<>();
         Gson gson = new Gson();
 
+        if (path.startsWith("/")) path = path.substring(1);
         if (!path.endsWith("/")) path += "/";
 
         ClassLoader classLoader = clazz.getClassLoader();
-        if (classLoader == null)
+        if (classLoader == null) {
             throw new IllegalStateException("ClassLoader not found for class " + clazz.getName());
+        }
 
         URL dirURL = classLoader.getResource(path);
-        if (dirURL != null) {
-            String protocol = dirURL.getProtocol();
+        if (dirURL == null) {
+            throw new FileNotFoundException("Resource path not found: " + path);
+        }
 
-            if (protocol.equals("file")) {
-                File folder = new File(dirURL.toURI());
-                File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
-                if (files != null) {
-                    for (File file : files) {
-                        try (Reader reader = new FileReader(file)) {
+        String protocol = dirURL.getProtocol();
+
+        if (protocol.equals("file")) {
+            File folder = new File(dirURL.toURI());
+            File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
+            if (files != null) {
+                for (File file : files) {
+                    try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+                        JsonObject obj = gson.fromJson(reader, JsonObject.class);
+                        if (obj != null) result.add(obj);
+                    }
+                }
+            }
+            return result;
+        }
+
+        if (protocol.equals("jar")) {
+            JarURLConnection connection = (JarURLConnection) dirURL.openConnection();
+
+            try (JarFile jar = connection.getJarFile()) {
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String name = entry.getName();
+
+                    if (name.startsWith(path) && name.endsWith(".json") && !entry.isDirectory()) {
+                        try (InputStream is = jar.getInputStream(entry);
+                             Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                             JsonObject obj = gson.fromJson(reader, JsonObject.class);
                             if (obj != null) result.add(obj);
                         }
                     }
                 }
-                return result;
             }
-
-            if (protocol.equals("jar")) {
-                //String p = dirURL.getPath();
-                String url = dirURL.getPath();
-
-                if (url.startsWith("jar:file:") || url.startsWith("file:")) {
-
-                    url = url.replace("jar:", "").replace("file:", "").replaceAll(" ", "\s");
-                    String jarPath = url.substring(0, url.indexOf("!"));
-                    try (JarFile jar = new JarFile(jarPath)) {
-                        Enumeration<JarEntry> entries = jar.entries();
-                        while (entries.hasMoreElements()) {
-                            JarEntry entry = entries.nextElement();
-                            String name = entry.getName();
-                            if (name.startsWith(path) && name.endsWith(".json") && !entry.isDirectory()) {
-                                try (InputStream is = jar.getInputStream(entry);
-                                     Reader reader = new InputStreamReader(is)) {
-                                    JsonObject obj = gson.fromJson(reader, JsonObject.class);
-                                    if (obj != null) result.add(obj);
-                                }
-                            }
-                        }
-                    }
-                    return result;
-                }
-                throw new IllegalArgumentException("Not a JAR URL: " + url);
-            }
+            return result;
         }
 
-        throw new FileNotFoundException("Resource path not found: " + path);
+        throw new UnsupportedOperationException("Unsupported protocol: " + protocol);
     }
 }
