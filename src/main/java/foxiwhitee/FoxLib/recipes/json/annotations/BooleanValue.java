@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.recipes;
+package foxiwhitee.FoxLib.recipes.json.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface RecipesLocation {
-    String modId();
+public @interface BooleanValue {
+    String value();
 }

@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class FoxBaseTile extends TileEntity implements IOrientable {
-    private static final Map<Class<? extends FoxBaseTile>, Map<TileEventType, List<TileEventHandler>>> HANDLERS = new HashMap();
+    private static final Map<Class<? extends FoxBaseTile>, Map<TileEventType, List<TileEventHandler>>> HANDLERS = new HashMap<>();
     private final int orientableId = FastOrientableManager.nextId();
 
     public FoxBaseTile() {
@@ -103,13 +103,13 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
 
     private Map<TileEventType, List<TileEventHandler>> getEventToHandlers() {
         Class<? extends FoxBaseTile> clazz = this.getClass();
-        Map<TileEventType, List<TileEventHandler>> storedHandlers = (Map) HANDLERS.get(clazz);
+        Map<TileEventType, List<TileEventHandler>> storedHandlers = HANDLERS.get(clazz);
         if (storedHandlers == null) {
-            Map<TileEventType, List<TileEventHandler>> newStoredHandlers = new EnumMap(TileEventType.class);
+            Map<TileEventType, List<TileEventHandler>> newStoredHandlers = new EnumMap<>(TileEventType.class);
             HANDLERS.put(clazz, newStoredHandlers);
 
             for (Method method : clazz.getMethods()) {
-                TileEvent event = (TileEvent) method.getAnnotation(TileEvent.class);
+                TileEvent event = method.getAnnotation(TileEvent.class);
                 if (event != null) {
                     this.addHandler(newStoredHandlers, event.value(), method);
                 }
@@ -164,7 +164,7 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
             if (stream.readableBytes() == 0) {
                 return null;
             }
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
 
         stream.capacity(stream.readableBytes());

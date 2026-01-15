@@ -1,8 +1,7 @@
 package foxiwhitee.FoxLib.integration.crafttweaker;
 
-import foxiwhitee.FoxLib.recipes.IJsonRecipe;
+import foxiwhitee.FoxLib.recipes.json.IJsonRecipe;
 import minetweaker.MineTweakerAPI;
-import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;

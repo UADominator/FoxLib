@@ -13,7 +13,7 @@ import foxiwhitee.FoxLib.items.ItemProductivityCard;
 import foxiwhitee.FoxLib.network.NetworkManager;
 import foxiwhitee.FoxLib.recipes.BaseFoxRecipe;
 import foxiwhitee.FoxLib.recipes.FurnaceRecipeRapper;
-import foxiwhitee.FoxLib.recipes.RecipesHandler;
+import foxiwhitee.FoxLib.recipes.json.RecipesHandler;
 import foxiwhitee.FoxLib.registries.RegisterUtils;
 import foxiwhitee.FoxLib.tile.FoxBaseTile;
 import foxiwhitee.FoxLib.utils.FindDuplicateCraftsScript;
@@ -39,6 +39,7 @@ public class CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         ConfigHandler.loadConfigs(event);
         RecipesHandler.loadRecipesLocations(event);
+        RecipesHandler.loadRecipes(event);
         GuiHandlerRegistry.registerGuiHandlers(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(FoxLib.instance, new GuiHandler());
         IntegrationLoader.preInit(event);

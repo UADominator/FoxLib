@@ -15,9 +15,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class FoxBaseInvTile extends FoxBaseTile implements IFoxInternalInventory, ISidedInventory {
+    private final List<IInventory> dropInventory = new ArrayList<>();
+
+    public FoxBaseInvTile() {
+        dropInventory.add(this);
+    }
 
     @TileEvent(TileEventType.SERVER_NBT_READ)
     public void readFromNBT_(NBTTagCompound data) {
@@ -32,11 +38,6 @@ public abstract class FoxBaseInvTile extends FoxBaseTile implements IFoxInternal
     public abstract FoxInternalInventory getInternalInventory();
 
     @Override
-    public void saveChanges() {
-
-    }
-
-    @Override
     public int[] getAccessibleSlotsFromSide(int side) {
         Block blk = this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord);
         if (blk instanceof FoxBaseBlock) {
@@ -48,12 +49,12 @@ public abstract class FoxBaseInvTile extends FoxBaseTile implements IFoxInternal
     }
 
     public void getDrops(World w, int x, int y, int z, List<ItemStack> drops) {
-        IInventory inv = (IInventory) this;
-
-        for(int l = 0; l < inv.getSizeInventory(); ++l) {
-            ItemStack is = inv.getStackInSlot(l);
-            if (is != null) {
-                drops.add(is);
+        for (IInventory inv : dropInventory) {
+            for(int l = 0; l < inv.getSizeInventory(); ++l) {
+                ItemStack is = inv.getStackInSlot(l);
+                if (is != null) {
+                    drops.add(is);
+                }
             }
         }
     }

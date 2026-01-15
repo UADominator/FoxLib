@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.recipes;
+package foxiwhitee.FoxLib.recipes.json;
 
 import com.github.bsideup.jabel.Desugar;
 import com.google.gson.JsonArray;
@@ -9,18 +9,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RecipeUtils {
-    public static ItemStack getItemStack(JsonElement element) {
+    public static ItemStack getItemStack(JsonElement element, boolean nullable) {
         if (element.isJsonPrimitive()) {
-            return getItemStack(element.getAsString());
+            return getItemStack(element.getAsString(), nullable);
         } else if (element.isJsonObject()) {
             JsonObject object = element.getAsJsonObject();
-            ItemStack stack = getItemStack(object.get("value").getAsString());
+            ItemStack stack = getItemStack(object.get("value").getAsString(), nullable);
             if (stack == null) {
                 return null;
             }
@@ -30,7 +33,7 @@ public class RecipeUtils {
         return null;
     }
 
-    public static ItemStack getItemStack(String name) throws RuntimeException {
+    public static ItemStack getItemStack(String name, boolean nullable) throws RuntimeException {
         if (name.equals("null")) {
             return null;
         }
@@ -38,6 +41,9 @@ public class RecipeUtils {
         Item item = (Item) Item.itemRegistry.getObject(info.modId + ":" + info.name);
         if (item != null) {
             return new ItemStack(item, info.count, info.meta);
+        }
+        if (nullable) {
+            return null;
         }
         throw new RuntimeException("Item not found: " + name);
     }
@@ -57,57 +63,79 @@ public class RecipeUtils {
         throw new RuntimeException("ItemStack should have the form <modId:name.meta:count> where meta and count are optional");
     }
 
-    public static ItemStack getOutput(JsonObject data) throws RuntimeException {
-        ItemStack out;
-        if (data.has("output")) {
-            out = RecipeUtils.getItemStack(data.get("output"));
-        } else if (data.has("outputs")) {
-            out = RecipeUtils.getItemStack(data.get("outputs").getAsJsonArray().get(0));
-        } else {
-            throw new RuntimeException("Unable to find craft exit");
+    public static FluidStack getFluidStack(JsonElement element, boolean nullable) {
+        if (element.isJsonPrimitive()) {
+            return getFluidStack(element.getAsString(), nullable);
+        } else if (element.isJsonObject()) {
+            JsonObject object = element.getAsJsonObject();
+            FluidStack stack = getFluidStack(object.get("value").getAsString(), nullable);
+            if (stack == null) {
+                return null;
+            }
+            stack.tag = toNBT(object.get("tag").getAsJsonObject());
+            return stack;
         }
-        if (out == null) {
-            throw new NullPointerException();
-        }
-        return out;
+        return null;
     }
 
-    public static Object[] getInputs(JsonObject data, boolean oreDict) throws RuntimeException {
-        Object[] inputs;
-        if (data.has("inputs")) {
-            JsonArray inp = data.get("inputs").getAsJsonArray();
-            inputs = new Object[inp.size()];
-            String name;
-            for (int i = 0; i < inp.size(); i++) {
-                if (inp.get(i).isJsonObject()) {
-                    inputs[i] = getItemStack(inp.get(i));
-                    continue;
-                }
-                name = inp.get(i).getAsString();
-                if (oreDict && name.startsWith("<ore:")) {
-                    inputs[i] = name.replace("<ore:", "").replace(">", "");
-                } else {
-                    inputs[i] = getItemStack(name);
-                }
-            }
+    public static FluidStack getFluidStack(String name, boolean nullable) throws RuntimeException {
+        if (name.equals("null")) {
+            return null;
+        }
+        ParsedFluid info = parseFluid(name);
+        FluidStack fluidStack = createFluidStack(info.name, info.count);
+        if (fluidStack != null) {
+            return fluidStack;
+        }
+        if (nullable) {
+            return null;
+        }
+        throw new RuntimeException("Fluid not found: " + name);
+    }
+
+    private static ParsedFluid parseFluid(String input) {
+        Pattern pattern = Pattern.compile("^<([\\w.-]+)(?::(\\d+))?>$");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.matches()) {
+            String fluidName = matcher.group(1);
+            int amount = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 1000;
+
+            return new ParsedFluid(fluidName, amount);
+        }
+
+        throw new RuntimeException("FluidStack should have the form <name:amount> where amount is optional");
+    }
+
+    public static Object getOreOrStack(JsonElement element, boolean oreDict, boolean nullable) {
+        String name = element.getAsString();
+        if (oreDict && name.startsWith("<ore:")) {
+            return name.replace("<ore:", "").replace(">", "");
         } else {
-            throw new RuntimeException("Unable to find craft inputs");
+            return getItemStack(name, nullable);
+        }
+    }
+
+    public static Object[] getItems(JsonArray inp, boolean oreDict, boolean nullable) throws RuntimeException {
+        Object[] items;
+        items = new Object[inp.size()];
+        for (int i = 0; i < inp.size(); i++) {
+            if (inp.get(i).isJsonObject()) {
+                items[i] = getItemStack(inp.get(i), nullable);
+                continue;
+            }
+            items[i] = getOreOrStack(inp.get(i), oreDict, nullable);
+        }
+        return items;
+    }
+
+    public static FluidStack[] getFluids(JsonArray inp, boolean nullable) throws RuntimeException {
+        FluidStack[] inputs;
+        inputs = new FluidStack[inp.size()];
+        for (int i = 0; i < inp.size(); i++) {
+            inputs[i] = getFluidStack(inp.get(i), nullable);
         }
         return inputs;
-    }
-
-
-    public static ItemStack[] getOutputs(JsonObject data) throws RuntimeException {
-        ItemStack[] out;
-        if (data.has("outputs")) {
-            out = new ItemStack[data.get("outputs").getAsJsonArray().size()];
-            for (int i = 0; i < data.get("outputs").getAsJsonArray().size(); i++) {
-                out[i] = RecipeUtils.getItemStack(data.get("outputs").getAsJsonArray().get(i));
-            }
-        } else {
-            throw new RuntimeException("Unable to find craft exit");
-        }
-        return out;
     }
 
     private static NBTTagCompound toNBT(JsonObject json) {
@@ -118,7 +146,7 @@ public class RecipeUtils {
         NBTTagCompound compound = new NBTTagCompound();
 
         for (Map.Entry<String, JsonElement> entrySet : json.entrySet()) {
-            String key = entrySet.getKey();;
+            String key = entrySet.getKey();
             JsonElement element = entrySet.getValue();
             String currentPath = path.isEmpty() ? key : path + "." + key;
 
@@ -169,6 +197,19 @@ public class RecipeUtils {
 
         return compound;
     }
+
+    public static FluidStack createFluidStack(String fluidName, int amount) {
+        Fluid fluid = FluidRegistry.getFluid(fluidName);
+
+        if (fluid != null) {
+            return new FluidStack(fluid, amount);
+        } else {
+            return null;
+        }
+    }
+
+    @Desugar
+    private record ParsedFluid(String name, int count) {}
 
     @Desugar
     private record Parsed(String modId, String name, int meta, int count) {}

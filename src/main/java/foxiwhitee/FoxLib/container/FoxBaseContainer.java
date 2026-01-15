@@ -13,13 +13,23 @@ import net.minecraft.tileentity.TileEntity;
 public abstract class FoxBaseContainer extends Container {
     private final InventoryPlayer invPlayer;
     private final TileEntity tileEntity;
-    private boolean isProcessingShiftClick = false;
     private final Slot[] playerSlots;
 
+    public FoxBaseContainer(EntityPlayer player, TileEntity tileEntity) {
+        this.invPlayer = player.inventory;
+        this.tileEntity = tileEntity;
+        this.playerSlots = new Slot[36];
+    }
+
+    @Deprecated
     public FoxBaseContainer(InventoryPlayer ip, TileEntity myTile) {
         this.invPlayer = ip;
         this.tileEntity = myTile;
         this.playerSlots = new Slot[36];
+    }
+
+    protected void bindPlayerInventory(int offsetX, int offsetY) {
+        bindPlayerInventory(invPlayer, offsetX, offsetY);
     }
 
     protected void bindPlayerInventory(InventoryPlayer inventoryPlayer, int offsetX, int offsetY) {
@@ -43,7 +53,7 @@ public abstract class FoxBaseContainer extends Container {
     }
 
     public boolean canInteractWith(EntityPlayer entityplayer) {
-        return this.tileEntity instanceof IInventory ? ((IInventory)this.tileEntity).isUseableByPlayer(entityplayer) : true;
+        return !(this.tileEntity instanceof IInventory) || ((IInventory) this.tileEntity).isUseableByPlayer(entityplayer);
     }
 
     public boolean mergeStackToPlayerInv(ItemStack stack) {
@@ -59,7 +69,7 @@ public abstract class FoxBaseContainer extends Container {
     }
 
     public ItemStack transferStackInSlot(EntityPlayer player, int slotId) {
-        Slot slot = (Slot) inventorySlots.get(slotId);
+        Slot slot = inventorySlots.get(slotId);
         if (slot == null || !slot.getHasStack()) {
             return null;
         }
@@ -89,7 +99,7 @@ public abstract class FoxBaseContainer extends Container {
         if (stack.isStackable()) {
             while (stack.stackSize > 0 && (!reverse && index < end || reverse && index >= start)) {
 
-                slot = (Slot) this.inventorySlots.get(index);
+                slot = this.inventorySlots.get(index);
                 slotStack = slot.getStack();
 
                 if (!slot.isItemValid(stack)) {
@@ -129,7 +139,7 @@ public abstract class FoxBaseContainer extends Container {
 
             while (!reverse && index < end || reverse && index >= start) {
 
-                slot = (Slot) this.inventorySlots.get(index);
+                slot = this.inventorySlots.get(index);
                 slotStack = slot.getStack();
 
                 if (!slot.isItemValid(stack)) {

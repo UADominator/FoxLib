@@ -1,11 +1,8 @@
 package foxiwhitee.FoxLib.utils.helpers;
 
-import com.github.bsideup.jabel.Desugar;
 import cpw.mods.fml.common.registry.GameData;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
-import foxiwhitee.FoxLib.recipes.RecipeUtils;
-import ic2.core.block.machine.BlockMachine;
-import net.minecraft.block.Block;
+import foxiwhitee.FoxLib.recipes.json.RecipeUtils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -41,7 +38,7 @@ public class ProductivityBlackListHelper {
         for (String s : strings) {
             ItemStack stack = null;
             try {
-                stack = RecipeUtils.getItemStack(s);
+                stack = RecipeUtils.getItemStack(s, false);
             } catch (RuntimeException ignored) {}
             if (stack != null) {
                 BLACKLIST.add(new ItemInBL(stack.getItem(), stack.getItemDamage()));

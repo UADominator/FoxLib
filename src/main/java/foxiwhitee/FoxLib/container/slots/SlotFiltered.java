@@ -13,18 +13,26 @@ import java.util.function.Predicate;
 public class SlotFiltered extends FoxSlot {
     public static final Map<String, Predicate<ItemStack>> filters = new HashMap<>();
     private final String which;
-    private final InventoryPlayer p;
-    private boolean allowEdit = true;
     private int stackLimit = -1;
 
+    @Deprecated
     public SlotFiltered(String valid, IInventory i, int slotIndex, int x, int y, InventoryPlayer p) {
         this(valid, null, i, slotIndex, x, y, p);
     }
 
+    @Deprecated
     public SlotFiltered(String valid, IOptionalSlotHost host, IInventory i, int slotIndex, int x, int y, InventoryPlayer p) {
         super(i, host, slotIndex, x, y);
         this.which = valid;
-        this.p = p;
+    }
+
+    public SlotFiltered(String valid, IInventory i, int slotIndex, int x, int y) {
+        this(valid, null, i, slotIndex, x, y);
+    }
+
+    public SlotFiltered(String valid, IOptionalSlotHost host, IInventory i, int slotIndex, int x, int y) {
+        super(i, host, slotIndex, x, y);
+        this.which = valid;
     }
 
     public int getSlotStackLimit() {
@@ -65,7 +73,7 @@ public class SlotFiltered extends FoxSlot {
     }
 
     private boolean isAllowEdit() {
-        return this.allowEdit;
+        return true;
     }
 
 }

@@ -10,8 +10,9 @@ import foxiwhitee.FoxLib.commands.CommandFindDuplicateCrafts;
 import foxiwhitee.FoxLib.commands.CommandHand;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import foxiwhitee.FoxLib.proxy.CommonProxy;
-import foxiwhitee.FoxLib.recipes.RecipesLocation;
+import foxiwhitee.FoxLib.recipes.json.annotations.RecipesLocation;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 
 import static foxiwhitee.FoxLib.FoxLib.*;
@@ -26,12 +27,7 @@ public class FoxLib {
     @Mod.Instance(MODID)
     public static FoxLib instance;
 
-    public static final CreativeTabs FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
-        @Override
-        public Item getTabIconItem() {
-            return CommonProxy.productivityCards;
-        }
-    };
+    public static CreativeTabs FOX_TAB;
 
     @RecipesLocation(modId = "foxlib")
     public static final String[] recipes = {"recipes"};
@@ -47,6 +43,21 @@ public class FoxLib {
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         proxy.init(e);
+        if (FoxLibConfig.enableProductivityCards) {
+            FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
+                @Override
+                public Item getTabIconItem() {
+                    return CommonProxy.productivityCards;
+                }
+            };
+        } else {
+            FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
+                @Override
+                public Item getTabIconItem() {
+                    return Item.getItemFromBlock(Blocks.bedrock);
+                }
+            };
+        }
     }
 
     @Mod.EventHandler

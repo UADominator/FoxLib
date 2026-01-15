@@ -12,7 +12,7 @@ public class FoxInternalInventory implements IInventory {
     private final int size;
     private final ItemStack[] inv;
     private int maxStack;
-    private IFoxInternalInventory tile;
+    private final IFoxInternalInventory tile;
 
     public FoxInternalInventory(IFoxInternalInventory tile, int size) {
         this(tile, size, 64);
@@ -37,7 +37,7 @@ public class FoxInternalInventory implements IInventory {
     public ItemStack decrStackSize(int slot, int qty) {
         if (this.inv[slot] != null) {
             ItemStack split = this.getStackInSlot(slot);
-            ItemStack ns = null;
+            ItemStack ns;
             if (qty >= split.stackSize) {
                 ns = this.inv[slot];
                 this.inv[slot] = null;
@@ -46,7 +46,7 @@ public class FoxInternalInventory implements IInventory {
             }
 
             if (this.tile != null && FMLCommonHandler.instance().getEffectiveSide().isServer()) {
-                this.tile.onChangeInventory(this, slot, InvOperation.decreaseStackSize, ns, (ItemStack)null);
+                this.tile.onChangeInventory(this, slot, InvOperation.decreaseStackSize, ns, null);
             }
 
             this.markDirty();
@@ -66,7 +66,7 @@ public class FoxInternalInventory implements IInventory {
         if (this.tile != null) {
             ItemStack removed = oldStack;
             ItemStack added = itemStack;
-            if (oldStack != null && itemStack != null && isSameItem(oldStack, itemStack)) {
+            if (itemStack != null && isSameItem(oldStack, itemStack)) {
                 if (oldStack.stackSize > itemStack.stackSize) {
                     removed = oldStack.copy();
                     removed.stackSize -= itemStack.stackSize;
@@ -99,7 +99,7 @@ public class FoxInternalInventory implements IInventory {
     @Override
     public void markDirty() {
         if (this.tile != null && FMLCommonHandler.instance().getEffectiveSide().isServer()) {
-            this.tile.onChangeInventory(this, -1, InvOperation.markDirty, (ItemStack)null, (ItemStack)null);
+            this.tile.onChangeInventory(this, -1, InvOperation.markDirty, null, null);
         }
     }
 
@@ -138,7 +138,7 @@ public class FoxInternalInventory implements IInventory {
                 }
 
                 target.setTag("#" + x, c);
-            } catch (Exception var4) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -150,7 +150,7 @@ public class FoxInternalInventory implements IInventory {
                 if (c != null) {
                     this.inv[x] = ItemStack.loadItemStackFromNBT(c);
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -174,13 +174,5 @@ public class FoxInternalInventory implements IInventory {
 
     public ItemStack[] toArray() {
         return inv;
-    }
-
-    private IFoxInternalInventory getTileEntity() {
-        return this.tile;
-    }
-
-    public void setTileEntity(IFoxInternalInventory te) {
-        this.tile = te;
     }
 }
