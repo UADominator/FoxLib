@@ -33,13 +33,29 @@ public class RecipeProcessor {
                 NumberValue anno = field.getAnnotation(NumberValue.class);
                 JsonElement el = json.get(anno.value());
                 if (validate(el, false, anno.value())) {
-                    field.set(recipe, isList ? parseNumberList(el, field) : castNumber(el.getAsDouble(), field.getType()));
+                    try {
+                        field.set(recipe, isList ? parseNumberList(el, field) : castNumber(el.getAsDouble(), field.getType()));
+                    } catch (Exception e) {
+                        if (!isList) {
+                            field.set(recipe, 0);
+                        } else {
+                            field.set(recipe, null);
+                        }
+                    }
                 }
             } else if (field.isAnnotationPresent(BooleanValue.class)) {
                 BooleanValue anno = field.getAnnotation(BooleanValue.class);
                 JsonElement el = json.get(anno.value());
                 if (validate(el, false, anno.value())) {
-                    field.set(recipe, isList ? parseBooleanList(el) : el.getAsBoolean());
+                    try {
+                        field.set(recipe, isList ? parseBooleanList(el) : el.getAsBoolean());
+                    } catch (Exception e) {
+                        if (!isList) {
+                            field.set(recipe, false);
+                        } else {
+                            field.set(recipe, null);
+                        }
+                    }
                 }
             } else if (field.isAnnotationPresent(OreValue.class)) {
                 if (!typeAnno.hasOreDict()) throw new RuntimeException("OreValue used but hasOreDict is false");
@@ -103,26 +119,38 @@ public class RecipeProcessor {
     }
 
     private static Object parseOreInput(JsonElement el, boolean isList, boolean canBeNull) {
-        if (isList) {
-            return Arrays.asList(RecipeUtils.getItems(el.getAsJsonArray(), true, canBeNull));
-        } else {
-            return RecipeUtils.getOreOrStack(el, true, canBeNull);
+        try {
+            if (isList) {
+                return Arrays.asList(RecipeUtils.getItems(el.getAsJsonArray(), true, canBeNull));
+            } else {
+                return RecipeUtils.getOreOrStack(el, true, canBeNull);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 
     private static Object parseFluid(JsonElement el, boolean isList, boolean canBeNull) {
-        if (isList) {
-            return Arrays.asList(RecipeUtils.getFluids(el.getAsJsonArray(), canBeNull));
-        } else {
-            return RecipeUtils.getFluidStack(el, canBeNull);
+        try {
+            if (isList) {
+                return Arrays.asList(RecipeUtils.getFluids(el.getAsJsonArray(), canBeNull));
+            } else {
+                return RecipeUtils.getFluidStack(el, canBeNull);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 
     private static Object parseSimpleValue(JsonElement el, boolean isList, boolean canBeNull) {
-        if (isList) {
-            return Arrays.asList(RecipeUtils.getItems(el.getAsJsonArray(), false, canBeNull));
-        } else {
-            return RecipeUtils.getItemStack(el, canBeNull);
+        try {
+            if (isList) {
+                return Arrays.asList(RecipeUtils.getItems(el.getAsJsonArray(), false, canBeNull));
+            } else {
+                return RecipeUtils.getItemStack(el, canBeNull);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 }

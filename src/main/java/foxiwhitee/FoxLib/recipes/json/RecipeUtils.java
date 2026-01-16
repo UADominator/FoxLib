@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import foxiwhitee.FoxLib.utils.helpers.StackOreDict;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,10 +15,12 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RecipeUtils {
+
     public static ItemStack getItemStack(JsonElement element, boolean nullable) {
         if (element.isJsonPrimitive()) {
             return getItemStack(element.getAsString(), nullable);
@@ -110,9 +113,23 @@ public class RecipeUtils {
     public static Object getOreOrStack(JsonElement element, boolean oreDict, boolean nullable) {
         String name = element.getAsString();
         if (oreDict && name.startsWith("<ore:")) {
-            return name.replace("<ore:", "").replace(">", "");
+            ParsedOre parsed = parseOredict(name);
+            return new StackOreDict(parsed.name, parsed.count);
         } else {
             return getItemStack(name, nullable);
+        }
+    }
+
+    private static ParsedOre parseOredict(String input) {
+        Pattern pattern = Pattern.compile("^<([\\w-]+):([\\w.-]*?)(?::(\\d+))?>$");
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.matches()) {
+            String first = matcher.group(1);
+            String second = matcher.group(2);
+            int colonNumber = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 1;
+            return new ParsedOre(first, second, colonNumber);
+        } else {
+            throw new RuntimeException("Oredict should have the form <ore:name:count> where count are optional");
         }
     }
 
@@ -207,6 +224,9 @@ public class RecipeUtils {
             return null;
         }
     }
+
+    @Desugar
+    private static record ParsedOre(String modId, String name, int count) { }
 
     @Desugar
     private record ParsedFluid(String name, int count) {}

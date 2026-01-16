@@ -6,6 +6,7 @@ import foxiwhitee.FoxLib.recipes.json.annotations.JsonRecipe;
 import foxiwhitee.FoxLib.recipes.json.annotations.OreValue;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipeOutput;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipeValue;
+import foxiwhitee.FoxLib.utils.helpers.StackOreDict;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -36,8 +37,8 @@ public class ShapelessCraft implements IJsonRecipe {
 
         for (Object in : inputs) {
             if (in == null) continue;
-            if (in instanceof String) {
-                params.add(in);
+            if (in instanceof StackOreDict ore) {
+                params.add(ore.getOre());
             } else if (in instanceof ItemStack) {
                 params.add(((ItemStack) in).copy());
             } else {

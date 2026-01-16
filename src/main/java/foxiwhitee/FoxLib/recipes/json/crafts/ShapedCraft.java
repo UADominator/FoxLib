@@ -6,6 +6,7 @@ import foxiwhitee.FoxLib.recipes.json.annotations.JsonRecipe;
 import foxiwhitee.FoxLib.recipes.json.annotations.OreValue;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipeOutput;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipeValue;
+import foxiwhitee.FoxLib.utils.helpers.StackOreDict;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -40,9 +41,9 @@ public class ShapedCraft implements IJsonRecipe {
         for (int k = 0; k < inputs.size(); k++) {
             Object in = inputs.get(k);
             if (in == null) continue;
-            if (in instanceof String) {
+            if (in instanceof StackOreDict ore) {
                 params.add(keys[k]);
-                params.add(in);
+                params.add(ore.getOre());
             } else if (in instanceof ItemStack) {
                 params.add(keys[k]);
                 params.add(((ItemStack) in).copy());
