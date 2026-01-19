@@ -12,11 +12,11 @@ public interface ICraftingCPUClusterAccessor {
 
     void setWaitingFor(ICraftingPatternDetails paramICraftingPatternDetails, long paramLong);
 
-    void callPostChange(IAEItemStack paramIAEItemStack, BaseActionSource paramBaseActionSource);
+    void callPostChange(IAEStack<?> paramIAEItemStack, BaseActionSource paramBaseActionSource);
 
     IItemList<IAEStack<?>> getWaitingFor();
 
-    void callPostCraftingStatusChange(IAEItemStack paramIAEItemStack);
+    void callPostCraftingStatusChange(IAEStack<?> paramIAEItemStack);
 
     void addTile$FoxAE2Upgrade(TileCraftingTile te);
 

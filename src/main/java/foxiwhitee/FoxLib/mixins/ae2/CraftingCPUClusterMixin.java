@@ -127,7 +127,7 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
     }
 
     @Override
-    public void callPostChange(IAEItemStack paramIAEItemStack, BaseActionSource paramBaseActionSource) {
+    public void callPostChange(IAEStack<?> paramIAEItemStack, BaseActionSource paramBaseActionSource) {
         postChange(paramIAEItemStack, paramBaseActionSource);
     }
 
@@ -137,7 +137,7 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
     }
 
     @Override
-    public void callPostCraftingStatusChange(IAEItemStack paramIAEItemStack) {
+    public void callPostCraftingStatusChange(IAEStack<?> paramIAEItemStack) {
         postCraftingStatusChange(paramIAEItemStack);
     }
 
