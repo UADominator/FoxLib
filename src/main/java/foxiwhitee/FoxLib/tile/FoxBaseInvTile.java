@@ -60,6 +60,11 @@ public abstract class FoxBaseInvTile extends FoxBaseTile implements IFoxInternal
     }
 
     @Override
+    public String getInventoryName() {
+        return "inventory";
+    }
+
+    @Override
     public boolean canInsertItem(int slotIndex, ItemStack insertingItem, int side) {
         return this.isItemValidForSlot(slotIndex, insertingItem);
     }

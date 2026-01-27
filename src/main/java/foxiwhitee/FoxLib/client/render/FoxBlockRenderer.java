@@ -20,17 +20,16 @@ public class FoxBlockRenderer implements ISimpleBlockRenderingHandler {
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
         if (!(block instanceof FoxBaseBlock)) return false;
 
-        IOrientable ori = (IOrientable) world.getTileEntity(x, y, z);
-        if (ori != null) {
+        if (world.getTileEntity(x, y, z) instanceof IOrientable ori) {
             ForgeDirection f = ori.getForward();
             ForgeDirection u = ori.getUp();
 
             renderer.uvRotateBottom = RotationHelper.getUVRotation(0, f, u);
-            renderer.uvRotateTop    = RotationHelper.getUVRotation(1, f, u);
-            renderer.uvRotateNorth  = RotationHelper.getUVRotation(2, f, u);
-            renderer.uvRotateSouth  = RotationHelper.getUVRotation(3, f, u);
-            renderer.uvRotateWest   = RotationHelper.getUVRotation(4, f, u);
-            renderer.uvRotateEast   = RotationHelper.getUVRotation(5, f, u);
+            renderer.uvRotateTop = RotationHelper.getUVRotation(1, f, u);
+            renderer.uvRotateNorth = RotationHelper.getUVRotation(2, f, u);
+            renderer.uvRotateSouth = RotationHelper.getUVRotation(3, f, u);
+            renderer.uvRotateWest = RotationHelper.getUVRotation(4, f, u);
+            renderer.uvRotateEast = RotationHelper.getUVRotation(5, f, u);
         }
 
         boolean result = renderer.renderStandardBlock(block, x, y, z);

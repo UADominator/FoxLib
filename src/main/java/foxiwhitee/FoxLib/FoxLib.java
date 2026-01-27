@@ -27,7 +27,12 @@ public class FoxLib {
     @Mod.Instance(MODID)
     public static FoxLib instance;
 
-    public static CreativeTabs FOX_TAB;
+    public final static CreativeTabs FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
+        @Override
+        public Item getTabIconItem() {
+            return CommonProxy.productivityCards;
+        }
+    };;
 
     @RecipesLocation(modId = "foxlib")
     public static final String[] recipes = {"recipes"};
@@ -43,21 +48,6 @@ public class FoxLib {
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
         proxy.init(e);
-        if (FoxLibConfig.enableProductivityCards) {
-            FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
-                @Override
-                public Item getTabIconItem() {
-                    return CommonProxy.productivityCards;
-                }
-            };
-        } else {
-            FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
-                @Override
-                public Item getTabIconItem() {
-                    return Item.getItemFromBlock(Blocks.bedrock);
-                }
-            };
-        }
     }
 
     @Mod.EventHandler

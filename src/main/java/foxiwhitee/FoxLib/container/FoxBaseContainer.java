@@ -1,5 +1,6 @@
 package foxiwhitee.FoxLib.container;
 
+import foxiwhitee.FoxLib.container.slots.SlotFake;
 import foxiwhitee.FoxLib.container.slots.SlotPlayerHotBar;
 import foxiwhitee.FoxLib.container.slots.SlotPlayerInv;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,19 +30,20 @@ public abstract class FoxBaseContainer extends Container {
     }
 
     protected void bindPlayerInventory(int offsetX, int offsetY) {
-        bindPlayerInventory(invPlayer, offsetX, offsetY);
-    }
-
-    protected void bindPlayerInventory(InventoryPlayer inventoryPlayer, int offsetX, int offsetY) {
         for(int i = 0; i < 9; ++i) {
-            this.playerSlots[i] = this.addSlotToContainer(new SlotPlayerHotBar(inventoryPlayer, i, 8 + i * 18 + offsetX, 58 + offsetY));
+            this.playerSlots[i] = this.addSlotToContainer(new SlotPlayerHotBar(invPlayer, i, 8 + i * 18 + offsetX, 58 + offsetY));
         }
 
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < 9; ++j) {
-                this.playerSlots[j + i * 9 + 9] = this.addSlotToContainer(new SlotPlayerInv(inventoryPlayer, j + i * 9 + 9, 8 + j * 18 + offsetX, offsetY + i * 18));
+                this.playerSlots[j + i * 9 + 9] = this.addSlotToContainer(new SlotPlayerInv(invPlayer, j + i * 9 + 9, 8 + j * 18 + offsetX, offsetY + i * 18));
             }
         }
+    }
+
+    @Deprecated
+    protected void bindPlayerInventory(InventoryPlayer inventoryPlayer, int offsetX, int offsetY) {
+        bindPlayerInventory(offsetX, offsetY);
     }
 
     public InventoryPlayer getInventoryPlayer() {
@@ -70,7 +72,7 @@ public abstract class FoxBaseContainer extends Container {
 
     public ItemStack transferStackInSlot(EntityPlayer player, int slotId) {
         Slot slot = inventorySlots.get(slotId);
-        if (slot == null || !slot.getHasStack()) {
+        if (slot == null || !slot.getHasStack() || (slot instanceof SlotFake && clickWasInPlayerInventory(slot))) {
             return null;
         }
         ItemStack stack = slot.getStack();
@@ -107,10 +109,18 @@ public abstract class FoxBaseContainer extends Container {
                     continue;
                 }
 
+
                 if (slotStack != null
                     && slotStack.getItem() == stack.getItem()
                     && (!stack.getHasSubtypes() || stack.getItemDamage() == slotStack.getItemDamage())
                     && ItemStack.areItemStackTagsEqual(stack, slotStack)) {
+
+                    if (slot instanceof SlotFake) {
+                        ItemStack fakeCopy = stack.copy();
+                        slot.putStack(fakeCopy);
+                        slot.onSlotChanged();
+                        return false;
+                    }
 
                     int total = slotStack.stackSize + stack.stackSize;
                     int max = Math.min(stack.getMaxStackSize(), slot.inventory.getInventoryStackLimit());
@@ -124,7 +134,6 @@ public abstract class FoxBaseContainer extends Container {
                         stack.stackSize -= (max - slotStack.stackSize);
                         slotStack.stackSize = max;
                         slot.onSlotChanged();
-                        changed = true;
                     }
                 }
 
@@ -154,7 +163,6 @@ public abstract class FoxBaseContainer extends Container {
                     slot.putStack(newStack);
                     slot.onSlotChanged();
                     stack.stackSize -= max;
-                    changed = true;
                     break;
                 }
 
@@ -166,4 +174,17 @@ public abstract class FoxBaseContainer extends Container {
         return changed;
     }
 
+    @Override
+    public ItemStack slotClick(int slotId, int mouseButton, int modifier, EntityPlayer player) {
+        if (slotId >= 0 && slotId < this.inventorySlots.size()) {
+            Slot slot = this.inventorySlots.get(slotId);
+
+            if (slot instanceof SlotFake fake) {
+                fake.handleFakeClick(player.inventory.getItemStack());
+                return null;
+            }
+        }
+
+        return super.slotClick(slotId, mouseButton, modifier, player);
+    }
 }

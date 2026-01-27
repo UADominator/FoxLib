@@ -102,8 +102,8 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     }
 
     public IIcon getIcon(IBlockAccess w, int x, int y, int z, int s) {
-        IOrientable ori = (IOrientable) w.getTileEntity(x, y, z);
-        if (ori != null) {
+        TileEntity te = w.getTileEntity(x, y, z);
+        if (te instanceof IOrientable ori) {
             ForgeDirection sideWorld = ForgeDirection.getOrientation(s);
             ForgeDirection logicalSide = mapRotation(ori, sideWorld);
             return getIcon(logicalSide.ordinal(), w.getBlockMetadata(x, y, z));
@@ -163,7 +163,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     }
 
     public IOrientable getOrientable(final IBlockAccess w, final int x, final int y, final int z) {
-        return this.getTileEntity(w, x, y, z);
+        return this.getTileEntity(w, x, y, z) instanceof IOrientable ? this.getTileEntity(w, x, y, z) : null;
     }
 
     public <T extends FoxBaseTile> T getTileEntity(final IBlockAccess w, final int x, final int y, final int z) {

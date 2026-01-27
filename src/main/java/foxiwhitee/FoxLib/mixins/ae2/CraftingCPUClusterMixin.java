@@ -48,10 +48,6 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
     @Shadow(remap = false)
     private int accelerator;
 
-    @Shadow(remap = false)
-    @Final
-    private LinkedList<TileCraftingTile> storage;
-
     @Shadow
     abstract void addTile(TileCraftingTile te);
 
@@ -85,7 +81,6 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
 
             this.availableStorage += server.getClusterStorageBytes(index);
             this.accelerator += server.getClusterAccelerator(index);
-            this.storage.add(te);
         }
     }
 
