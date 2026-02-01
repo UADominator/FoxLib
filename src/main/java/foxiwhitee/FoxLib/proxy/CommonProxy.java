@@ -12,6 +12,8 @@ import foxiwhitee.FoxLib.integration.IntegrationLoader;
 import foxiwhitee.FoxLib.items.ItemProductivityCard;
 import foxiwhitee.FoxLib.network.NetworkManager;
 import foxiwhitee.FoxLib.recipes.BaseFoxRecipe;
+import foxiwhitee.FoxLib.recipes.CustomShapedRecipe;
+import foxiwhitee.FoxLib.recipes.CustomShapelessRecipe;
 import foxiwhitee.FoxLib.recipes.FurnaceRecipeRapper;
 import foxiwhitee.FoxLib.recipes.json.RecipesHandler;
 import foxiwhitee.FoxLib.registries.RegisterUtils;
@@ -26,6 +28,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -55,6 +58,8 @@ public class CommonProxy {
         IntegrationLoader.init(event);
         ProductivityBlackListHelper.registerBlackList(FoxLibConfig.productivityBlackList);
         ProductivityBlackListHelper.registerBlackListByModId(FoxLibConfig.productivityModsBlackList);
+        RecipeSorter.register("foxlib:customShaped", CustomShapedRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped before:minecraft:shapeless");
+        RecipeSorter.register("foxlib:customShapeless", CustomShapelessRecipe.class, RecipeSorter.Category.SHAPELESS, "after:foxlib:customShaped before:minecraft:shapeless");
     }
 
     public void postInit(FMLPostInitializationEvent event) {

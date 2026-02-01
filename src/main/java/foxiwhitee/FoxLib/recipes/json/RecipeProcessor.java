@@ -46,15 +46,15 @@ public class RecipeProcessor {
             } else if (field.isAnnotationPresent(BooleanValue.class)) {
                 BooleanValue anno = field.getAnnotation(BooleanValue.class);
                 JsonElement el = json.get(anno.value());
-                if (validate(el, false, anno.value())) {
-                    try {
+                try {
+                    if (validate(el, false, anno.value())) {
                         field.set(recipe, isList ? parseBooleanList(el) : el.getAsBoolean());
-                    } catch (Exception e) {
-                        if (!isList) {
-                            field.set(recipe, false);
-                        } else {
-                            field.set(recipe, null);
-                        }
+                    }
+                } catch (Exception e) {
+                    if (!isList) {
+                        field.set(recipe, false);
+                    } else {
+                        field.set(recipe, null);
                     }
                 }
             } else if (field.isAnnotationPresent(OreValue.class)) {

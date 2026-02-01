@@ -82,7 +82,7 @@ public abstract class FoxBaseContainer extends Container {
                 slot.putStack(null);
             }
             slot.onSlotChanged();
-            return slot.getStack();
+            return null;
         }
         return null;
     }
@@ -119,7 +119,7 @@ public abstract class FoxBaseContainer extends Container {
                         ItemStack fakeCopy = stack.copy();
                         slot.putStack(fakeCopy);
                         slot.onSlotChanged();
-                        return false;
+                        return true;
                     }
 
                     int total = slotStack.stackSize + stack.stackSize;
@@ -134,6 +134,7 @@ public abstract class FoxBaseContainer extends Container {
                         stack.stackSize -= (max - slotStack.stackSize);
                         slotStack.stackSize = max;
                         slot.onSlotChanged();
+                        changed = true;
                     }
                 }
 
@@ -162,7 +163,11 @@ public abstract class FoxBaseContainer extends Container {
                     newStack.stackSize = max;
                     slot.putStack(newStack);
                     slot.onSlotChanged();
+                    if (slot instanceof SlotFake) {
+                        max = 0;
+                    }
                     stack.stackSize -= max;
+                    changed = true;
                     break;
                 }
 

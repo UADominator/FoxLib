@@ -1,14 +1,11 @@
 package foxiwhitee.FoxLib.recipes.json.crafts;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import foxiwhitee.FoxLib.recipes.CustomShapelessRecipe;
 import foxiwhitee.FoxLib.recipes.json.IJsonRecipe;
-import foxiwhitee.FoxLib.recipes.json.annotations.JsonRecipe;
-import foxiwhitee.FoxLib.recipes.json.annotations.OreValue;
-import foxiwhitee.FoxLib.recipes.json.annotations.RecipeOutput;
-import foxiwhitee.FoxLib.recipes.json.annotations.RecipeValue;
+import foxiwhitee.FoxLib.recipes.json.annotations.*;
 import foxiwhitee.FoxLib.utils.helpers.StackOreDict;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +15,9 @@ public class ShapelessCraft implements IJsonRecipe {
     @RecipeValue("output")
     @RecipeOutput
     private ItemStack output;
+
+    @BooleanValue("strictNbt")
+    private boolean strictNbt;
 
     @OreValue("inputs")
     private List<Object> inputs;
@@ -46,9 +46,10 @@ public class ShapelessCraft implements IJsonRecipe {
             }
         }
 
-        if (params.isEmpty())
+        if (params.isEmpty()) {
             throw new IllegalArgumentException("Recipe must have at least one valid ingredient");
+        }
 
-        GameRegistry.addRecipe(new ShapelessOreRecipe(output.copy(), params.toArray()));
+        GameRegistry.addRecipe(new CustomShapelessRecipe(output.copy(), strictNbt, params.toArray()));
     }
 }

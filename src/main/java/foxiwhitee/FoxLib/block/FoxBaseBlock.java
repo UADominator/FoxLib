@@ -41,7 +41,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     protected IIcon westIcon;
 
     protected final String name;
-    private Class<? extends TileEntity> tileEntityType;
+    private Class<? extends TileEntity> tileEntityType = FoxBaseTile.class;
 
     public FoxBaseBlock(String modID, String name) {
         super(Material.rock);
@@ -57,8 +57,9 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
         TileEntity tile = world.getTileEntity(x, y, z);
         if (tileEntityType.isInstance(tile) && GuiHandlers.containsHandler(getClass())) {
             FMLNetworkHandler.openGui(player, FoxLib.instance, GuiHandlers.getHandler(getClass()), world, x, y, z);
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -229,7 +230,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
-        Constructor<? extends TileEntity> constructor = null;
+        Constructor<? extends TileEntity> constructor;
         try {
             constructor = tileEntityType.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
@@ -245,7 +246,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
 
     public void breakBlock(World world, int x, int y, int z, Block block, int b) {
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te != null && te instanceof FoxBaseInvTile invTile) {
+        if (te instanceof FoxBaseInvTile invTile) {
             ArrayList<ItemStack> drops = new ArrayList<>();
             invTile.getDrops(world, x, y, z, drops);
             spawnDrops(world, x, y, z, drops);
