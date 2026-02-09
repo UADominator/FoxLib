@@ -12,17 +12,17 @@ import foxiwhitee.FoxLib.config.FoxLibConfig;
 import foxiwhitee.FoxLib.proxy.CommonProxy;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipesLocation;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 
 import static foxiwhitee.FoxLib.FoxLib.*;
 
-@Mod(modid = MODID, name = MODNAME, version = VERSION)
+@Mod(modid = MODID, name = MODNAME, version = VERSION, dependencies = DEPEND)
 public class FoxLib {
     public static final String
         MODID = "foxlib",
         MODNAME = "FoxLib",
-        VERSION = "1.3.0";
+        VERSION = "1.3.0",
+        DEPEND = "after:NotEnoughItems";
 
     @Mod.Instance(MODID)
     public static FoxLib instance;
@@ -32,7 +32,7 @@ public class FoxLib {
         public Item getTabIconItem() {
             return CommonProxy.productivityCards;
         }
-    };;
+    };
 
     @RecipesLocation(modId = "foxlib")
     public static final String[] recipes = {"recipes"};

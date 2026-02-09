@@ -19,11 +19,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 public abstract class FoxBaseGui extends GuiContainer {
+    private final Container container;
     private String modID = FoxLib.MODID;
     private boolean drawingFG = false;
 
     public FoxBaseGui(Container container, int xSize, int ySize) {
         super(container);
+        this.container = container;
         this.ySize = ySize;
         this.xSize = xSize;
     }
@@ -89,10 +91,7 @@ public abstract class FoxBaseGui extends GuiContainer {
     }
 
     protected final void drawGuiContainerForegroundLayer(int x, int y) {
-        int ox = this.guiLeft;
-        int oy = this.guiTop;
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        //this.drawFG(ox, oy, x, y);
         drawingFG = true;
         this.drawFG(0, 0, x, y);
         drawingFG = false;
@@ -220,5 +219,9 @@ public abstract class FoxBaseGui extends GuiContainer {
         }
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    public Container getContainer() {
+        return container;
     }
 }

@@ -5,12 +5,14 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import foxiwhitee.FoxLib.FoxLib;
+import foxiwhitee.FoxLib.api.FoxLibApi;
 import foxiwhitee.FoxLib.client.render.StaticRenderHandler;
 import foxiwhitee.FoxLib.config.ConfigHandler;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import foxiwhitee.FoxLib.integration.IntegrationLoader;
 import foxiwhitee.FoxLib.items.ItemProductivityCard;
 import foxiwhitee.FoxLib.network.NetworkManager;
+import foxiwhitee.FoxLib.network.packets.C2SNeiOverlayPacket;
 import foxiwhitee.FoxLib.recipes.BaseFoxRecipe;
 import foxiwhitee.FoxLib.recipes.CustomShapedRecipe;
 import foxiwhitee.FoxLib.recipes.CustomShapelessRecipe;
@@ -47,6 +49,7 @@ public class CommonProxy {
         NetworkRegistry.INSTANCE.registerGuiHandler(FoxLib.instance, new GuiHandler());
         IntegrationLoader.preInit(event);
         StaticRenderHandler.loadStaticRenderData(event);
+        FoxLibApi.instance.registries().registerPacket().register(C2SNeiOverlayPacket.class);
 
         RegisterUtils.registerTile(FoxBaseTile.class);
         if (FoxLibConfig.enableProductivityCards) {

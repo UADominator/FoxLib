@@ -36,6 +36,17 @@ public class CustomShapedRecipe extends ShapedOreRecipe {
                 input[i] = OreDictionary.getOres((String) input[i]);
             }
         }
+        if (input.length < 9) {
+            Object[] newIns = new Object[9];
+            for (int i = 0; i < newIns.length; i++) {
+                if (i < input.length) {
+                    newIns[i] = input[i];
+                } else {
+                    newIns[i] = null;
+                }
+            }
+            this.input = newIns;
+        }
     }
 
     private void calculateBounds(Object[] fullGrid) {
