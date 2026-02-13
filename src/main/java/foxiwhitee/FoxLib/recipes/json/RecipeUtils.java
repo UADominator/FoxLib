@@ -1,6 +1,5 @@
 package foxiwhitee.FoxLib.recipes.json;
 
-import com.github.bsideup.jabel.Desugar;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,7 +14,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,10 +122,9 @@ public class RecipeUtils {
         Pattern pattern = Pattern.compile("^<([\\w-]+):([\\w.-]*?)(?::(\\d+))?>$");
         Matcher matcher = pattern.matcher(input);
         if (matcher.matches()) {
-            String first = matcher.group(1);
             String second = matcher.group(2);
             int colonNumber = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 1;
-            return new ParsedOre(first, second, colonNumber);
+            return new ParsedOre(second, colonNumber);
         } else {
             throw new RuntimeException("Oredict should have the form <ore:name:count> where count are optional");
         }
@@ -225,12 +222,36 @@ public class RecipeUtils {
         }
     }
 
-    @Desugar
-    private static record ParsedOre(String modId, String name, int count) { }
+    private static class ParsedOre {
+        private final String name;
+        private final int count;
 
-    @Desugar
-    private record ParsedFluid(String name, int count) {}
+        private ParsedOre(String name, int count) {
+            this.name = name;
+            this.count = count;
+        }
+    }
 
-    @Desugar
-    private record Parsed(String modId, String name, int meta, int count) {}
+    private static class ParsedFluid {
+        private final String name;
+        private final int count;
+
+        private ParsedFluid(String name, int count) {
+            this.name = name;
+            this.count = count;
+        }
+    }
+
+    private static class Parsed {
+        private final String modId, name;
+        private final int meta, count;
+
+        private Parsed(String modId, String name, int meta, int count) {
+            this.modId = modId;
+            this.name = name;
+            this.meta = meta;
+            this.count = count;
+        }
+    }
+
 }
