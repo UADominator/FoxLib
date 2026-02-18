@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Random;
 
 public class FoxBaseBlock extends Block implements ITileEntityProvider {
+    private static int  staticRenderId;
     protected IIcon topIcon;
     protected IIcon downIcon;
     protected IIcon frontIcon;
@@ -41,6 +42,7 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     protected IIcon westIcon;
 
     protected final String name;
+    protected int renderId = 0;
     private Class<? extends TileEntity> tileEntityType = FoxBaseTile.class;
 
     public FoxBaseBlock(String modID, String name) {
@@ -273,8 +275,8 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public int getRenderType() {
-        return ClientProxy.foxBaseBlockRenderId;
+    public final int getRenderType() {
+        return renderId == 0 ? staticRenderId : renderId;
     }
 
     protected boolean hasUpDownRotate() {
@@ -283,5 +285,9 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
 
     public String getFolder() {
         return "";
+    }
+
+    public static void setStaticRenderId(int staticRenderId) {
+        FoxBaseBlock.staticRenderId = staticRenderId;
     }
 }

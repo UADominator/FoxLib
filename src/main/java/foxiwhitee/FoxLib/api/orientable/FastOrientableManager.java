@@ -31,8 +31,8 @@ public class FastOrientableManager {
     }
 
     public static void set(int id, ForgeDirection forward, ForgeDirection up) {
-        setInArray(FORWARD_STORAGE, id, forward);
-        setInArray(UP_STORAGE, id, up);
+        setInArray(FORWARD_STORAGE, id, forward != null ? forward : ForgeDirection.UNKNOWN);
+        setInArray(UP_STORAGE, id, up != null ? up : ForgeDirection.UNKNOWN);
     }
 
     private static void setInArray(ThreadLocal<ForgeDirection[]> tl, int id, ForgeDirection dir) {

@@ -4,6 +4,7 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import foxiwhitee.FoxLib.block.FoxBaseBlock;
 import foxiwhitee.FoxLib.client.render.FoxBlockRenderer;
 import foxiwhitee.FoxLib.client.render.RenderStaticBlock;
 import foxiwhitee.FoxLib.client.render.StaticRender;
@@ -22,11 +23,13 @@ public class ClientProxy extends CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
+        StaticRenderHandler.loadStaticRenderData(event);
     }
 
     public void init(FMLInitializationEvent event) {
         super.init(event);
         foxBaseBlockRenderId = RenderingRegistry.getNextAvailableRenderId();
+        FoxBaseBlock.setStaticRenderId(foxBaseBlockRenderId);
         RenderingRegistry.registerBlockHandler(new FoxBlockRenderer(foxBaseBlockRenderId));
 
         for (Map.Entry<Block, StaticRender> entry : StaticRenderHandler.STATIC_RENDER_DATA.entrySet()) {

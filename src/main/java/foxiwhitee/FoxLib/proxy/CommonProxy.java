@@ -48,7 +48,6 @@ public class CommonProxy {
         GuiHandlerRegistry.registerGuiHandlers(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(FoxLib.instance, new GuiHandler());
         IntegrationLoader.preInit(event);
-        StaticRenderHandler.loadStaticRenderData(event);
         FoxLibApi.instance.registries().registerPacket().register(C2SNeiOverlayPacket.class);
 
         RegisterUtils.registerTile(FoxBaseTile.class);

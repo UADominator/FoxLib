@@ -169,11 +169,11 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
 
         stream.capacity(stream.readableBytes());
         data.setByteArray("X", stream.array());
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 666, data);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, getBlockMetadata(), data);
     }
 
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        if (pkt.func_148853_f() == 666) {
+        if (pkt.func_148853_f() == getBlockMetadata()) {
             ByteBuf stream = Unpooled.copiedBuffer(pkt.func_148857_g().getByteArray("X"));
             if (this.readFromStream(stream)) {
                 this.markForUpdate();
