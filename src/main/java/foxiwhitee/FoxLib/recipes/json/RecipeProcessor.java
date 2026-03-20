@@ -57,6 +57,20 @@ public class RecipeProcessor {
                         field.set(recipe, null);
                     }
                 }
+            } else if (field.isAnnotationPresent(StringValue.class)) {
+                StringValue anno = field.getAnnotation(StringValue.class);
+                JsonElement el = json.get(anno.value());
+                try {
+                    if (validate(el, false, anno.value())) {
+                        field.set(recipe, isList ? parseStringList(el) : el.getAsString());
+                    }
+                } catch (Exception e) {
+                    if (!isList) {
+                        field.set(recipe, false);
+                    } else {
+                        field.set(recipe, null);
+                    }
+                }
             } else if (field.isAnnotationPresent(OreValue.class)) {
                 if (!typeAnno.hasOreDict()) throw new RuntimeException("OreValue used but hasOreDict is false");
                 OreValue anno = field.getAnnotation(OreValue.class);
@@ -115,6 +129,13 @@ public class RecipeProcessor {
         if (!el.isJsonArray()) throw new RuntimeException("Expected JSON Array for boolean list");
         List<Boolean> list = new ArrayList<>();
         el.getAsJsonArray().forEach(e -> list.add(e.getAsBoolean()));
+        return list;
+    }
+
+    private static List<String> parseStringList(JsonElement el) {
+        if (!el.isJsonArray()) throw new RuntimeException("Expected JSON Array for string list");
+        List<String> list = new ArrayList<>();
+        el.getAsJsonArray().forEach(e -> list.add(e.getAsString()));
         return list;
     }
 

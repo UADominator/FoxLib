@@ -71,6 +71,12 @@ public class UniversalOverlayHandler implements IOverlayHandler {
                 }
             }
 
+            NBTTagCompound tag = new NBTTagCompound();
+            PositionedStack result = recipe.getResultStack(recipeIndex);
+            if (result != null) {
+                result.item.writeToNBT(tag);
+                root.setTag("result", tag);
+            }
             NetworkManager.instance.sendToServer(new C2SNeiOverlayPacket(overlay.xCoord, overlay.yCoord, overlay.zCoord, root));
         }
     }

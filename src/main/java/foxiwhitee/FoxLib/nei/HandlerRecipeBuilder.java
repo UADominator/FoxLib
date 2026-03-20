@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class HandlerRecipeBuilder<T> {
     private final NeiProcessor processor;
     private final String id;
@@ -39,6 +40,21 @@ public class HandlerRecipeBuilder<T> {
 
     public HandlerRecipeBuilder<T> processOutputsFluids(RecipeDefinition.ProcessFluids<T> p) {
         this.def.processOutputsFluids = p;
+        return this;
+    }
+
+    public HandlerRecipeBuilder<T> processLoading(RecipeDefinition.LoadRecipesObjects<T> l) {
+        this.def.loadCraftingRecipesObjects = l;
+        return this;
+    }
+
+    public HandlerRecipeBuilder<T> processLoading(RecipeDefinition.LoadRecipesStack<T> l) {
+        this.def.loadCraftingRecipesStack = l;
+        return this;
+    }
+
+    public HandlerRecipeBuilder<T> processUsage(RecipeDefinition.LoadRecipesStack<T> l) {
+        this.def.loadUsageRecipes = l;
         return this;
     }
 

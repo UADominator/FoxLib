@@ -21,7 +21,7 @@ public class FoxLib {
     public static final String
         MODID = "foxlib",
         MODNAME = "FoxLib",
-        VERSION = "1.3.0",
+        VERSION = "1.3.1",
         DEPEND = "after:NotEnoughItems";
 
     @Mod.Instance(MODID)

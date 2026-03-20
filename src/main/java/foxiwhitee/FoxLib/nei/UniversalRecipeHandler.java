@@ -14,14 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class UniversalRecipeHandler<T> extends TemplateRecipeHandler {
     private static final Map<String, RecipeDefinition<?>> definitions = new HashMap<>();
 
     private String id;
     private RecipeDefinition<T> def;
+    private final CacheBuilder builder = new CacheBuilder();
 
-    public UniversalRecipeHandler() {
-    }
+    public UniversalRecipeHandler() {}
 
     public UniversalRecipeHandler(String id, RecipeDefinition<T> def) {
         this.id = id;
@@ -123,8 +124,12 @@ public class UniversalRecipeHandler<T> extends TemplateRecipeHandler {
     public void loadCraftingRecipes(String outputId, Object... results) {
         if (id == null) return;
         if (outputId.equals(id) && def.recipes != null) {
-            for (T r : def.recipes) {
-                arecipes.add(new CachedUniversalRecipe(r));
+            if (def.loadCraftingRecipesObjects != null) {
+                def.loadCraftingRecipesObjects.load(def.recipes, builder, outputId, results);
+            } else {
+                for (T r : def.recipes) {
+                    this.arecipes.add(new CachedUniversalRecipe(r));
+                }
             }
         } else {
             super.loadCraftingRecipes(outputId, results);
@@ -133,6 +138,10 @@ public class UniversalRecipeHandler<T> extends TemplateRecipeHandler {
 
     @Override
     public void loadCraftingRecipes(ItemStack result) {
+        if (def.loadCraftingRecipesStack != null) {
+            def.loadCraftingRecipesStack.load(def.recipes, builder, result);
+            return;
+        }
         for (T recipe : def.recipes) {
             if (recipe != null) {
                 CachedUniversalRecipe cRecipe = new CachedUniversalRecipe(recipe);
@@ -145,6 +154,10 @@ public class UniversalRecipeHandler<T> extends TemplateRecipeHandler {
 
     @Override
     public void loadUsageRecipes(ItemStack ingredient) {
+        if (def.loadUsageRecipes != null) {
+            def.loadUsageRecipes.load(def.recipes, builder, ingredient);
+            return;
+        }
         for(T recipe : def.recipes) {
             if (recipe != null) {
                 CachedUniversalRecipe cRecipe = new CachedUniversalRecipe(recipe);
@@ -191,6 +204,14 @@ public class UniversalRecipeHandler<T> extends TemplateRecipeHandler {
         @Override
         public List<PositionedStack> getOtherStacks() {
             return outputs;
+        }
+    }
+
+    public class CacheBuilder {
+        private CacheBuilder() {}
+
+        public void invoke(T recipe) {
+            UniversalRecipeHandler.this.arecipes.add(new CachedUniversalRecipe(recipe));
         }
     }
 }

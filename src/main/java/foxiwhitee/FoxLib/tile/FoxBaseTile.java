@@ -142,10 +142,16 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
     }
 
     @Override
-    public ForgeDirection getForward() { return FastOrientableManager.getForward(orientableId); }
+    public ForgeDirection getForward() {
+        ForgeDirection side = FastOrientableManager.getForward(orientableId);
+        return side == null ? ForgeDirection.UNKNOWN : side;
+    }
 
     @Override
-    public ForgeDirection getUp() { return FastOrientableManager.getUp(orientableId); }
+    public ForgeDirection getUp() {
+        ForgeDirection side = FastOrientableManager.getUp(orientableId);
+        return side == null ? ForgeDirection.UNKNOWN : side;
+    }
 
     @Override
     public void setOrientation(ForgeDirection forward, ForgeDirection up) {
@@ -172,6 +178,7 @@ public class FoxBaseTile extends TileEntity implements IOrientable {
         return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, getBlockMetadata(), data);
     }
 
+    @SuppressWarnings("all")
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         if (pkt.func_148853_f() == getBlockMetadata()) {
             ByteBuf stream = Unpooled.copiedBuffer(pkt.func_148857_g().getByteArray("X"));

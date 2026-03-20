@@ -1,23 +1,16 @@
 package foxiwhitee.FoxLib.block;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import foxiwhitee.FoxLib.FoxLib;
 import foxiwhitee.FoxLib.api.orientable.IOrientable;
 import foxiwhitee.FoxLib.api.orientable.RotationHelper;
-import foxiwhitee.FoxLib.proxy.ClientProxy;
 import foxiwhitee.FoxLib.tile.FoxBaseInvTile;
-import foxiwhitee.FoxLib.tile.FoxBaseTile;
-import foxiwhitee.FoxLib.utils.handler.GuiHandlers;
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
@@ -26,14 +19,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class FoxBaseBlock extends Block implements ITileEntityProvider {
-    private static int  staticRenderId;
+public class FoxBaseBlock extends Block {
+    private static int staticRenderId;
     protected IIcon topIcon;
     protected IIcon downIcon;
     protected IIcon frontIcon;
@@ -43,7 +34,6 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
 
     protected final String name;
     protected int renderId = 0;
-    private Class<? extends TileEntity> tileEntityType = FoxBaseTile.class;
 
     public FoxBaseBlock(String modID, String name) {
         super(Material.rock);
@@ -53,15 +43,6 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
         this.lightOpacity = 1;
         this.setHardness(2.0F);
         this.setResistance(10.0F);
-    }
-
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_) {
-        TileEntity tile = world.getTileEntity(x, y, z);
-        if (tileEntityType.isInstance(tile) && GuiHandlers.containsHandler(getClass())) {
-            FMLNetworkHandler.openGui(player, FoxLib.instance, GuiHandlers.getHandler(getClass()), world, x, y, z);
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -150,40 +131,25 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
                 forward = RotationHelper.rotateAround(forward, axis);
                 up = RotationHelper.rotateAround(up, axis);
 
-                if (this.isValidOrientation(w, x, y, z, forward, up)) {
-                    rotatable.setOrientation(forward, up);
-                    return true;
-                }
+                rotatable.setOrientation(forward, up);
+                return true;
             }
         }
 
         return super.rotateBlock(w, x, y, z, axis);
     }
 
-    public boolean isValidOrientation(final World w, final int x, final int y, final int z,
-                                      final ForgeDirection forward, final ForgeDirection up) {
-        return true;
-    }
-
     public IOrientable getOrientable(final IBlockAccess w, final int x, final int y, final int z) {
-        return this.getTileEntity(w, x, y, z) instanceof IOrientable ? this.getTileEntity(w, x, y, z) : null;
-    }
-
-    public <T extends FoxBaseTile> T getTileEntity(final IBlockAccess w, final int x, final int y, final int z) {
-        if (!this.hasBlockTileEntity()) {
-            tileEntityType = FoxBaseTile.class;
+        TileEntity tile = getTileEntity(w, x, y, z);
+        if (tile instanceof IOrientable ori) {
+            return ori;
         }
-
-        final TileEntity te = w.getTileEntity(x, y, z);
-        if (this.tileEntityType.isInstance(te)) {
-            return (T) te;
-        }
-
         return null;
     }
 
-    private boolean hasBlockTileEntity() {
-        return this.tileEntityType != null;
+    @SuppressWarnings("unchecked")
+    public TileEntity getTileEntity(final IBlockAccess w, final int x, final int y, final int z) {
+        return w.getTileEntity(x, y, z);
     }
 
     public ForgeDirection mapRotation(IOrientable ori, ForgeDirection dir) {
@@ -226,26 +192,6 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
         return west;
     }
 
-    public void setTileEntityType(Class<? extends TileEntity> tileEntityType) {
-        this.tileEntityType = tileEntityType;
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
-        Constructor<? extends TileEntity> constructor;
-        try {
-            constructor = tileEntityType.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-        constructor.setAccessible(true);
-        try {
-            return constructor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void breakBlock(World world, int x, int y, int z, Block block, int b) {
         TileEntity te = world.getTileEntity(x, y, z);
         if (te instanceof FoxBaseInvTile invTile) {
@@ -260,10 +206,10 @@ public class FoxBaseBlock extends Block implements ITileEntityProvider {
         if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
             for(ItemStack i : drops) {
                 if (i != null && i.stackSize > 0) {
-                    double offset_x = (double)((getRandomInt() % 32 - 16) / 82);
-                    double offset_y = (double)((getRandomInt() % 32 - 16) / 82);
-                    double offset_z = (double)((getRandomInt() % 32 - 16) / 82);
-                    EntityItem ei = new EntityItem(w, (double)0.5F + offset_x + (double)x, (double)0.5F + offset_y + (double)y, 0.2 + offset_z + (double)z, i.copy());
+                    double offset_x = ((double) (getRandomInt() % 32 - 16) / 82);
+                    double offset_y = ((double) (getRandomInt() % 32 - 16) / 82);
+                    double offset_z = ((double) (getRandomInt() % 32 - 16) / 82);
+                    EntityItem ei = new EntityItem(w, 0.5 + offset_x + x, 0.5 + offset_y + y, 0.2 + offset_z + z, i.copy());
                     w.spawnEntityInWorld(ei);
                 }
             }

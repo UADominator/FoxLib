@@ -10,31 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import java.text.DecimalFormat;
-
+@SuppressWarnings("unused")
 public class EnergyUtility {
-    private static final String[] POSTFIX = {"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q"};
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
-
-    public static String formatNumber(double energy) {
-        if (energy < 0) return "-" + formatNumber(-energy);
-        if (energy < 1000) return DF.format(energy).replace(",", ".");
-
-        int offset = 0;
-        double value = energy;
-
-        while (value >= 1000 && offset < POSTFIX.length - 1) {
-            value /= 1000.0;
-            offset++;
-        }
-
-        if (value >= 1000) {
-            return String.format("%.2e", energy).replace(",", ".");
-        }
-
-        return DF.format(value).replace(",", ".") + POSTFIX[offset];
-    }
-
     public static double pushEnergy(ForgeDirection side, double energy, double output, TileEntity thisTile, boolean doIf, boolean useEuRatio) {
         if (!doIf || energy <= 0) return 0;
 
