@@ -16,7 +16,7 @@ import java.util.List;
 @Optional.InterfaceList({
     @Optional.Interface(modid = "appliedenergistics2", iface = "import appeng.me.helpers.IGridProxyable")
 })
-public abstract class ModItemBlock extends ItemBlock {
+public class ModItemBlock extends ItemBlock {
     private final Block blockType;
 
     public ModItemBlock(Block b) {
