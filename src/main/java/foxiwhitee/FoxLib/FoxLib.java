@@ -6,13 +6,10 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import foxiwhitee.FoxLib.commands.CommandFindDuplicateCrafts;
 import foxiwhitee.FoxLib.commands.CommandHand;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import foxiwhitee.FoxLib.proxy.CommonProxy;
 import foxiwhitee.FoxLib.recipes.json.annotations.RecipesLocation;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 
 import static foxiwhitee.FoxLib.FoxLib.*;
 
@@ -26,13 +23,6 @@ public class FoxLib {
 
     @Mod.Instance(MODID)
     public static FoxLib instance;
-
-    public final static CreativeTabs FOX_TAB = new CreativeTabs("FOX_LIB_TAB") {
-        @Override
-        public Item getTabIconItem() {
-            return CommonProxy.productivityCards;
-        }
-    };
 
     @RecipesLocation(modId = "foxlib")
     public static final String[] recipes = {"recipes"};
@@ -59,9 +49,6 @@ public class FoxLib {
     public void onServerStarting(FMLServerStartingEvent event) {
         if (FoxLibConfig.enableHandCommand) {
             event.registerServerCommand(new CommandHand());
-        }
-        if (FoxLibConfig.enableFindDuplicateCraftsCommand) {
-            event.registerServerCommand(new CommandFindDuplicateCrafts());
         }
     }
 
