@@ -8,11 +8,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
-import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 
 @SideOnly(Side.CLIENT)
+@SuppressWarnings("unused")
 public abstract class TileEntitySpecialRendererObjWrapper<T extends TileEntity> extends TileEntitySpecialRenderer {
     private final Class<T> tileClass;
 
@@ -39,25 +39,21 @@ public abstract class TileEntitySpecialRendererObjWrapper<T extends TileEntity> 
 
     public abstract void renderAt(T paramT, double paramDouble1, double paramDouble2, double paramDouble3, double paramDouble4);
 
+    @SuppressWarnings("all")
     protected void createList(String part) {
-        int list = GL11.glGenLists(1);
-        GL11.glNewList(list, 4864);
-        if (part == null || part.equals("all")) {
-            part = "all";
+        if (part == null) part = "all";
+        this.partLists.put(part, 1);
+    }
+
+    @SuppressWarnings("all")
+    protected void renderPart(String part) {
+        if (part == null) part = "all";
+        if (!this.partLists.containsKey(part)) return;
+        if (part.equals("all")) {
             this.model.renderAll();
         } else {
             this.model.renderPart(part);
         }
-        GL11.glEndList();
-        this.partLists.put(part, Integer.valueOf(list));
-    }
-
-    protected void renderPart(String part) {
-        if (part == null)
-            part = "all";
-        if (!this.partLists.containsKey(part))
-            return;
-        GL11.glCallList(((Integer)this.partLists.get(part)).intValue());
     }
 
     public ResourceLocation getTexture() {

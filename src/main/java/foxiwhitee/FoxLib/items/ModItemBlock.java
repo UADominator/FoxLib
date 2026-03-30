@@ -2,6 +2,8 @@ package foxiwhitee.FoxLib.items;
 
 import appeng.me.helpers.IGridProxyable;
 import cpw.mods.fml.common.Optional;
+import foxiwhitee.FoxLib.block.FoxBaseBlock;
+import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +20,7 @@ import java.util.List;
 })
 public class ModItemBlock extends ItemBlock {
     private final Block blockType;
+    protected boolean enableTooltips = true;
 
     public ModItemBlock(Block b) {
         super(b);
@@ -45,7 +48,11 @@ public class ModItemBlock extends ItemBlock {
 
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean b) {
-        super.addInformation(stack, player, list, b);
+        if (FoxLibConfig.enableTooltips && enableTooltips) {
+            if (blockType instanceof FoxBaseBlock bl) {
+                bl.addInformation(stack, player, list, b);
+            }
+        }
     }
 
     public String getUnlocalizedName() {

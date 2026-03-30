@@ -11,6 +11,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
@@ -127,13 +128,11 @@ public class FoxBaseBlock extends Block {
             ForgeDirection forward = rotatable.getForward();
             ForgeDirection up = rotatable.getUp();
 
-            for (int rs = 0; rs < 4; rs++) {
-                forward = RotationHelper.rotateAround(forward, axis);
-                up = RotationHelper.rotateAround(up, axis);
+            forward = RotationHelper.rotateAround(forward, axis);
+            up = RotationHelper.rotateAround(up, axis);
 
-                rotatable.setOrientation(forward, up);
-                return true;
-            }
+            rotatable.setOrientation(forward, up);
+            return true;
         }
 
         return super.rotateBlock(w, x, y, z, axis);
@@ -147,7 +146,6 @@ public class FoxBaseBlock extends Block {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public TileEntity getTileEntity(final IBlockAccess w, final int x, final int y, final int z) {
         return w.getTileEntity(x, y, z);
     }
@@ -235,5 +233,10 @@ public class FoxBaseBlock extends Block {
 
     public static void setStaticRenderId(int staticRenderId) {
         FoxBaseBlock.staticRenderId = staticRenderId;
+    }
+
+    @SuppressWarnings("unused")
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean b) {
+
     }
 }

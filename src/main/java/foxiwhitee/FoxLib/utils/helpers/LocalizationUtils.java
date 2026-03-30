@@ -3,11 +3,22 @@ package foxiwhitee.FoxLib.utils.helpers;
 import net.minecraft.util.StatCollector;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 @SuppressWarnings("unused")
 public class LocalizationUtils {
+    private static final DecimalFormat df;
     private static final String[] POSTFIX = {"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q"};
     private static final DecimalFormat DF = new DecimalFormat("#.##");
+
+    static {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setGroupingSeparator(' ');
+        symbols.setDecimalSeparator('.');
+
+        df = new DecimalFormat("#,###.##", symbols);
+    }
 
     public static String formatNumber(double number) {
         if (number < 0) return "-" + formatNumber(-number);
@@ -26,6 +37,10 @@ public class LocalizationUtils {
         }
 
         return DF.format(value).replace(",", ".") + POSTFIX[offset];
+    }
+
+    public static String delimitingNumber(double number) {
+        return df.format(number);
     }
 
     public static String localize(String string, Object... objects) {
