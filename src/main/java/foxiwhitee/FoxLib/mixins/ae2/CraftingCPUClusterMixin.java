@@ -3,7 +3,6 @@ package foxiwhitee.FoxLib.mixins.ae2;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.security.BaseActionSource;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
@@ -23,10 +22,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Field;
-import java.util.LinkedList;
 import java.util.Map;
 
 @Mixin(value = CraftingCPUCluster.class, remap = false)
+@SuppressWarnings("all")
 public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAccessor {
 
     @Shadow(remap = false)
@@ -52,9 +51,6 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
     abstract void addTile(TileCraftingTile te);
 
     @Shadow
-    abstract void done();
-
-    @Shadow
     protected abstract TileCraftingTile getCore();
 
     @Shadow
@@ -75,8 +71,7 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
 
     @Inject(method = "addTile", at = @At("TAIL"))
     private void onAddTileEnd(TileCraftingTile te, CallbackInfo ci) {
-        if (te instanceof ITileMEServer) {
-            ITileMEServer server = (ITileMEServer) te;
+        if (te instanceof ITileMEServer server) {
             int index = server.getClusterIndex((CraftingCPUCluster) (Object) this);
 
             this.availableStorage += server.getClusterStorageBytes(index);
@@ -145,8 +140,7 @@ public abstract class CraftingCPUClusterMixin implements ICraftingCPUClusterAcce
     public void doneMEServer() {
         TileCraftingTile core = getCore();
         core.setCoreBlock(true);
-        if (core instanceof ITileMEServer) {
-            ITileMEServer server = (ITileMEServer) core;
+        if (core instanceof ITileMEServer server) {
             int index = server.getClusterIndex((CraftingCPUCluster) (Object) this);
             if (server.getPreviousState(index) != null) {
                 readFromNBT(server.getPreviousState(index));

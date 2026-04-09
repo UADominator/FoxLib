@@ -1,10 +1,12 @@
 package foxiwhitee.FoxLib.block;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import foxiwhitee.FoxLib.api.orientable.IOrientable;
 import foxiwhitee.FoxLib.api.orientable.RotationHelper;
+import foxiwhitee.FoxLib.integration.applied.tile.TileNetworkInv;
 import foxiwhitee.FoxLib.tile.FoxBaseInvTile;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -197,7 +199,17 @@ public class FoxBaseBlock extends Block {
             invTile.getDrops(world, x, y, z, drops);
             spawnDrops(world, x, y, z, drops);
         }
+        breakAEBlock(te, world, x, y, z);
         super.breakBlock(world, x, y, z, block, b);
+    }
+
+    @Optional.Method(modid = "appliedenergistics2")
+    private void breakAEBlock(TileEntity te, World world, int x, int y, int z) {
+        if (te instanceof TileNetworkInv invTile) {
+            ArrayList<ItemStack> drops = new ArrayList<>();
+            invTile.getDrops(world, x, y, z, drops);
+            spawnDrops(world, x, y, z, drops);
+        }
     }
 
     public static void spawnDrops(World w, int x, int y, int z, List<ItemStack> drops) {
