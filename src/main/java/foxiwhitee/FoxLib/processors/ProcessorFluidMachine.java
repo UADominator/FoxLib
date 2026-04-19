@@ -272,8 +272,15 @@ public class ProcessorFluidMachine<T extends IFluidMachineRecipe> extends Proces
         this.fluidsCraftingHash.clear();
         for (T recipe : this.sortedRecipes) {
             if (tryMatch(recipe) && tryMatchFluids(recipe)) {
-                this.currentRecipe = recipe;
-                return;
+                if (doesCorectRecipe != null) {
+                    if (doesCorectRecipe.test(recipe)) {
+                        this.currentRecipe = recipe;
+                        return;
+                    }
+                } else {
+                    this.currentRecipe = recipe;
+                    return;
+                }
             }
         }
         this.currentRecipe = null;

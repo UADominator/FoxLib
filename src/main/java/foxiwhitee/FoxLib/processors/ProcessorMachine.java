@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("all")
@@ -24,6 +25,7 @@ public class ProcessorMachine<T extends IMachineRecipe> {
     protected final CraftingHash slotsCraftingHash = new CraftingHash();
     protected final List<T> sortedRecipes;
     protected List<ItemStack> notConsumedStacks = new ArrayList<>();
+    protected Predicate<T> doesCorectRecipe;
     protected T currentRecipe;
     protected int progress;
     protected boolean markForUpdate = true;
@@ -125,8 +127,15 @@ public class ProcessorMachine<T extends IMachineRecipe> {
         this.slotsCraftingHash.clear();
         for (T recipe : this.sortedRecipes) {
             if (tryMatch(recipe)) {
-                this.currentRecipe = recipe;
-                return;
+                if (doesCorectRecipe != null) {
+                    if (doesCorectRecipe.test(recipe)) {
+                        this.currentRecipe = recipe;
+                        return;
+                    }
+                } else {
+                    this.currentRecipe = recipe;
+                    return;
+                }
             }
         }
         this.currentRecipe = null;
@@ -180,5 +189,9 @@ public class ProcessorMachine<T extends IMachineRecipe> {
         if (this.notConsumedStacks == null) {
             this.notConsumedStacks = new ArrayList<>();
         }
+    }
+
+    public void setDoesCorectRecipe(Predicate<T> doesCorectRecipe) {
+        this.doesCorectRecipe = doesCorectRecipe;
     }
 }
