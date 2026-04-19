@@ -268,6 +268,8 @@ public class ProcessorFluidMachine<T extends IFluidMachineRecipe> extends Proces
 
     @Override
     public void updateRecipe() {
+        this.slotsCraftingHash.clear();
+        this.fluidsCraftingHash.clear();
         for (T recipe : this.sortedRecipes) {
             if (tryMatch(recipe) && tryMatchFluids(recipe)) {
                 this.currentRecipe = recipe;

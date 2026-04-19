@@ -122,6 +122,7 @@ public class ProcessorMachine<T extends IMachineRecipe> {
     }
 
     public void updateRecipe() {
+        this.slotsCraftingHash.clear();
         for (T recipe : this.sortedRecipes) {
             if (tryMatch(recipe)) {
                 this.currentRecipe = recipe;
