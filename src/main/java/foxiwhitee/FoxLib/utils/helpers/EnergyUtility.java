@@ -5,43 +5,38 @@ import cofh.api.energy.IEnergyReceiver;
 import cpw.mods.fml.common.Optional;
 import foxiwhitee.FoxLib.api.energy.IDoubleEnergyContainerItem;
 import foxiwhitee.FoxLib.api.energy.IDoubleEnergyReceiver;
-import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
 @SuppressWarnings("unused")
 public class EnergyUtility {
-    public static double pushEnergy(ForgeDirection side, double energy, double output, TileEntity thisTile, boolean doIf, boolean useEuRatio) {
+    public static double pushEnergy(ForgeDirection side, double energy, double output, TileEntity thisTile, boolean doIf) {
         if (!doIf || energy <= 0) return 0;
 
         TileEntity targetTile = thisTile.getWorldObj().getTileEntity(thisTile.xCoord + side.offsetX, thisTile.yCoord + side.offsetY, thisTile.zCoord + side.offsetZ);
         if (targetTile == null) return 0;
 
-        double ratio = useEuRatio ? FoxLibConfig.rfInEu : 1.0;
-        double energyToPush = Math.min(energy, output) * ratio;
+        double energyToPush = Math.min(energy, output);
 
         if (targetTile instanceof IDoubleEnergyReceiver receiver) {
-            return receiver.receiveDoubleEnergy(side.getOpposite(), energyToPush, false) / ratio;
+            return receiver.receiveDoubleEnergy(side.getOpposite(), energyToPush, false);
         }
 
-        return tryPushRF(targetTile, side.getOpposite(), energyToPush) / ratio;
+        return tryPushRF(targetTile, side.getOpposite(), energyToPush);
     }
 
-    public static double handleItemEnergy(ItemStack stack, double energy, double output, double maxEnergy, boolean isCharging, boolean doIf, boolean useEuRatio) {
+    public static double handleItemEnergy(ItemStack stack, double energy, double output, double maxEnergy, boolean isCharging, boolean doIf ) {
         if (!doIf || stack == null || stack.getItem() == null) return 0;
 
-        double ratio = useEuRatio ? FoxLibConfig.rfInEu : 1.0;
-        double limit = Math.min(isCharging ? energy : maxEnergy - energy, output) * ratio;
+        double limit = Math.min(isCharging ? energy : maxEnergy - energy, output);
 
-        if (stack.getItem() instanceof IDoubleEnergyContainerItem item && item.canWorkWithEnergy(stack)) {
+        if (stack.getItem() instanceof IDoubleEnergyContainerItem item) {
             double processed = isCharging ? item.receiveDoubleEnergy(stack, limit, true) : item.extractDoubleEnergy(stack, limit, true);
-            if (useEuRatio) processed -= processed % ratio;
-
-            return (isCharging ? item.receiveDoubleEnergy(stack, processed, false) : item.extractDoubleEnergy(stack, processed, false)) / ratio;
+            return (isCharging ? item.receiveDoubleEnergy(stack, processed, false) : item.extractDoubleEnergy(stack, processed, false));
         }
 
-        return tryHandleRFItem(stack, limit, isCharging) / ratio;
+        return tryHandleRFItem(stack, limit, isCharging);
     }
 
     private static double tryPushRF(TileEntity tile, ForgeDirection side, double energy) {
