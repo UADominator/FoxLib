@@ -34,7 +34,6 @@ public class ProcessorPatternMachine extends ProcessorNoPatternsCraftingMachine{
         return this.patterns;
     }
 
-
     public void updatePatternList() {
         if (!proxy.isReady()) {
             return;

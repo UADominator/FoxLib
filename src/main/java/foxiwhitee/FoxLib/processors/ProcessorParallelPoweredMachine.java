@@ -1,18 +1,21 @@
 package foxiwhitee.FoxLib.processors;
 
-import foxiwhitee.FoxLib.api.processors.IFluidPoweredMachine;
-import foxiwhitee.FoxLib.recipes.IFluidMachineRecipe;
+import foxiwhitee.FoxLib.api.processors.IMachine;
+import foxiwhitee.FoxLib.api.processors.IParallelPoweredMachine;
+import foxiwhitee.FoxLib.recipes.IMachineRecipe;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 
 @SuppressWarnings("unused")
-public class ProcessorFluidPoweredMachine<T extends IFluidMachineRecipe> extends ProcessorFluidMachine<T> {
-    protected double power, maxPower, needPower;
+public class ProcessorParallelPoweredMachine<T extends IMachineRecipe> extends ProcessorParallelMachine<T> {
+    protected final double[] needPowers;
+    protected double power, maxPower;
     protected boolean perTick;
 
-    public ProcessorFluidPoweredMachine(IFluidPoweredMachine<T> machine, double maxPower) {
-        super(machine);
+    public ProcessorParallelPoweredMachine(IMachine<T> machine, int parallels, double maxPower) {
+        super(machine, parallels);
         this.maxPower = maxPower;
+        this.needPowers = new double[parallels];
     }
 
     public void setConsumePowerPerTick(boolean perTick) {
@@ -20,8 +23,8 @@ public class ProcessorFluidPoweredMachine<T extends IFluidMachineRecipe> extends
     }
 
     @Override
-    public IFluidPoweredMachine<T> getMachine() {
-        return (IFluidPoweredMachine<T>) super.getMachine();
+    public IParallelPoweredMachine<T> getMachine() {
+        return (IParallelPoweredMachine<T>) super.getMachine();
     }
 
     public double getPower() {
@@ -71,7 +74,9 @@ public class ProcessorFluidPoweredMachine<T extends IFluidMachineRecipe> extends
         super.writeToNbt(data);
         data.setDouble("power", this.power);
         data.setDouble("maxPower", this.maxPower);
-        data.setDouble("needPower", this.needPower);
+        for (int i = 0; i < parallels; i++) {
+            data.setDouble("needPower_" + i, needPowers[i]);
+        }
     }
 
     @Override
@@ -79,7 +84,9 @@ public class ProcessorFluidPoweredMachine<T extends IFluidMachineRecipe> extends
         super.readFromNbt(data);
         this.power = data.getDouble("power");
         this.maxPower = data.getDouble("maxPower");
-        this.needPower = data.getDouble("needPower");
+        for (int i = 0; i < parallels; i++) {
+            this.needPowers[i] = data.getDouble("needPower_" + i);
+        }
     }
 
     @Override
@@ -100,32 +107,36 @@ public class ProcessorFluidPoweredMachine<T extends IFluidMachineRecipe> extends
     }
 
     @Override
-    protected void afterValidateTick() {
+    protected boolean doWork(int idx) {
+        return this.power >= this.needPowers[idx];
+    }
+
+    @Override
+    protected void afterCrafting(int idx) {
+        super.afterCrafting(idx);
+        this.power -= this.needPowers[idx];
+        this.needPowers[idx] = 0;
+        getMachine().markForUpdate();
+    }
+
+
+    @Override
+    protected void afterValidateTick(int idx) {
         if (perTick) {
-            this.power -= this.needPower;
+            this.power -= this.needPowers[idx];
         }
     }
 
     @Override
     public void updateRecipe() {
         super.updateRecipe();
-        if (this.currentRecipe != null) {
-            this.needPower = getMachine().needPower(this.currentRecipe);
-        } else {
-            this.needPower = 0;
+        for (int i = 0; i < parallels; i++) {
+            T current = this.currentRecipes[i];
+            if (current != null) {
+                this.needPowers[i] = getMachine().needPower(current);
+            } else {
+                this.needPowers[i] = 0;
+            }
         }
-    }
-
-    @Override
-    protected boolean doWork() {
-        return this.power >= this.needPower;
-    }
-
-    @Override
-    protected void afterCrafting() {
-        super.afterCrafting();
-        this.power -= this.needPower;
-        this.needPower = 0;
-        getMachine().markForUpdate();
     }
 }

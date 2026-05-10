@@ -8,10 +8,15 @@ import net.minecraft.nbt.NBTTagCompound;
 @SuppressWarnings("unused")
 public class ProcessorPoweredMachine<T extends IMachineRecipe> extends ProcessorMachine<T> {
     protected double power, maxPower, needPower;
+    protected boolean perTick;
 
     public ProcessorPoweredMachine(IPoweredMachine<T> machine, double maxPower) {
         super(machine);
         this.maxPower = maxPower;
+    }
+
+    public void setConsumePowerPerTick(boolean perTick) {
+        this.perTick = perTick;
     }
 
     @Override
@@ -38,19 +43,25 @@ public class ProcessorPoweredMachine<T extends IMachineRecipe> extends Processor
     }
 
     public double receivePower(double power) {
-        double receivedPower = this.power + power;
-        if (receivedPower < 0) {
-            this.power = 0;
-            getMachine().markForUpdate();
-            return receivedPower;
-        } else if (receivedPower > this.maxPower) {
-            this.power = this.maxPower;
-            getMachine().markForUpdate();
-            return this.maxPower - receivedPower;
+        return receivePower(power, false);
+    }
+
+    public double receivePower(double power, boolean simulate) {
+        if (power >= 0) {
+            double energyReceived = Math.min(maxPower - this.power, power);
+
+            if (!simulate) {
+                this.power += energyReceived;
+                getMachine().markForUpdate();
+            }
+            return energyReceived;
         } else {
-            this.power = receivedPower;
-            getMachine().markForUpdate();
-            return receivedPower;
+            double energyExtracted = Math.min(this.power, -power);
+            if (!simulate) {
+                this.power -= energyExtracted;
+                getMachine().markForUpdate();
+            }
+            return energyExtracted;
         }
     }
 
@@ -85,6 +96,13 @@ public class ProcessorPoweredMachine<T extends IMachineRecipe> extends Processor
         this.power = data.readDouble();
         this.maxPower = data.readDouble();
         return old || oldPower != this.power || oldMaxPower != this.maxPower;
+    }
+
+    @Override
+    protected void afterValidateTick() {
+        if (perTick) {
+            this.power -= this.needPower;
+        }
     }
 
     @Override

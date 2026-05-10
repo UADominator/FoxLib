@@ -28,7 +28,7 @@ public class ProcessorMachine<T extends IMachineRecipe> {
     protected Predicate<T> doesCorectRecipe;
     protected T currentRecipe;
     protected int progress;
-    protected boolean markForUpdate = true;
+    protected boolean markForUpdate = true, isActive;
 
     public ProcessorMachine(IMachine<T> machine) {
         this.machine = machine;
@@ -47,27 +47,34 @@ public class ProcessorMachine<T extends IMachineRecipe> {
     public void writeToNbt(NBTTagCompound data) {
         slotsCraftingHash.writeToNbt(data);
         data.setInteger("progress", this.progress);
+        data.setBoolean("isActive", isActive);
     }
 
     public void readFromNbt(NBTTagCompound data) {
         slotsCraftingHash.readFromNbt(data);
         this.progress = data.getInteger("progress");
+        this.isActive = data.getBoolean("isActive");
         updateRecipe();
     }
 
     public void writeToStream(ByteBuf data) {
         data.writeInt(this.progress);
+        data.writeBoolean(this.isActive);
     }
 
     public boolean readFromStream(ByteBuf data) {
         int oldProgress = this.progress;
+        boolean oldIsActive = this.isActive;
         this.progress = data.readInt();
-        return oldProgress != this.progress;
+        this.isActive = data.readBoolean();
+        return oldProgress != this.progress || oldIsActive != this.isActive;
     }
 
     protected boolean doWork() {
         return true;
     }
+
+    protected void afterValidateTick() {}
 
     public void tick() {
         if (this.markForUpdate) {
@@ -75,29 +82,45 @@ public class ProcessorMachine<T extends IMachineRecipe> {
             this.markForUpdate = false;
         }
         if (this.currentRecipe != null && doWork() && InventoryUtils.canInsert(output, currentRecipe.getOutput())) {
+            if (!isActive) {
+                isActive = true;
+            }
             this.progress += 1;
+            afterValidateTick();
             if (this.progress >= getMachine().getRealSpeed()) {
+                boolean worked = false;
                 for (int i = 0; i < getMachine().getOperations(); i++) {
                     if (this.currentRecipe != null && doWork() && InventoryUtils.canInsert(output, currentRecipe.getOutput())) {
                         craftRecipe();
                         afterCrafting();
+                        updateRecipe();
+                        worked = true;
                     }
+                }
+                if (worked) {
+                    this.progress = 0;
                 }
             }
             getMachine().markForUpdate();
         } else {
+            boolean update = false;
+            if (isActive) {
+                this.isActive = false;
+                update = true;
+            }
             if (this.progress != 0) {
-                this.progress = 0;
-                getMachine().markForUpdate();
+                update = true;
             }
             this.progress = 0;
+            if (update) {
+                getMachine().markForUpdate();
+            }
         }
     }
 
     protected void afterCrafting() {
         this.progress = 0;
         this.slotsCraftingHash.clear();
-        updateRecipe();
         getMachine().markForUpdate();
     }
 
@@ -142,16 +165,37 @@ public class ProcessorMachine<T extends IMachineRecipe> {
     }
 
     protected boolean tryMatch(IMachineRecipe recipe) {
+        int[] slots = new int[this.inventory.getSizeInventory()];
+        for (int i = 0; i < slots.length; i++) {
+            slots[i] = i;
+        }
+        return tryMatch(recipe, this.slotsCraftingHash, slots);
+    }
+
+    protected boolean tryMatch(IMachineRecipe recipe, int... useSlots) {
+        return tryMatch(recipe, this.slotsCraftingHash, useSlots);
+    }
+
+    protected boolean tryMatch(IMachineRecipe recipe, CraftingHash hash) {
+        int[] slots = new int[this.inventory.getSizeInventory()];
+        for (int i = 0; i < slots.length; i++) {
+            slots[i] = i;
+        }
+        return tryMatch(recipe, hash, slots);
+    }
+
+    protected boolean tryMatch(IMachineRecipe recipe, CraftingHash hash, int... useSlots) {
         Map<Integer, Integer> consumptionMap = new HashMap<>();
-        int[] virtualUsage = new int[this.inventory.getSizeInventory()];
+        int[] virtualUsage = new int[useSlots.length];
 
         for (RecipeInput required : recipe.getInputs()) {
             int stillNeeded = required.getCount();
 
-            for (int i = 0; i < this.inventory.getSizeInventory(); i++) {
+            for (int i = 0; i < useSlots.length; i++) {
+                int slotId = useSlots[i];
                 if (stillNeeded <= 0) break;
 
-                ItemStack stackInSlot = this.inventory.getStackInSlot(i);
+                ItemStack stackInSlot = this.inventory.getStackInSlot(slotId);
                 if (stackInSlot == null) continue;
 
                 if (ItemStackUtil.matchesStackAndOther(stackInSlot, required.getInput())) {
@@ -160,7 +204,7 @@ public class ProcessorMachine<T extends IMachineRecipe> {
                     if (available > 0) {
                         int take = Math.min(stillNeeded, available);
                         if (!notConsumedStacks.contains(stackInSlot)) {
-                            consumptionMap.merge(i, take, Integer::sum);
+                            consumptionMap.merge(slotId, take, Integer::sum);
                         }
                         virtualUsage[i] += take;
                         stillNeeded -= take;
@@ -172,7 +216,7 @@ public class ProcessorMachine<T extends IMachineRecipe> {
                 return false;
             }
         }
-        this.slotsCraftingHash.putAll(consumptionMap);
+        hash.putAll(consumptionMap);
         return true;
     }
 
@@ -193,5 +237,9 @@ public class ProcessorMachine<T extends IMachineRecipe> {
 
     public void setDoesCorectRecipe(Predicate<T> doesCorectRecipe) {
         this.doesCorectRecipe = doesCorectRecipe;
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 }
