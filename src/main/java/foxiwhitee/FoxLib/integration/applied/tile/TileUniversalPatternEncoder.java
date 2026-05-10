@@ -116,6 +116,7 @@ public abstract class TileUniversalPatternEncoder extends TileNetworkInv impleme
 
     @TileEvent(TileEventType.WORLD_NBT_WRITE)
     public void writeToNbt_(NBTTagCompound data) {
+        super.writeToNbt_(data);
         crafting.writeToNBT(data, "crafting");
         output.writeToNBT(data, "output");
         data.setLong("strictInputCount", strictInputCount);
@@ -123,6 +124,7 @@ public abstract class TileUniversalPatternEncoder extends TileNetworkInv impleme
 
     @TileEvent(TileEventType.WORLD_NBT_READ)
     public void readFromNbt_(NBTTagCompound data) {
+        super.readFromNbt_(data);
         crafting.readFromNBT(data, "crafting");
         output.readFromNBT(data, "output");
         strictInputCount = data.getLong("strictInputCount");
