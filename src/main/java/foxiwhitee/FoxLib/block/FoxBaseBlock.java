@@ -37,15 +37,31 @@ public class FoxBaseBlock extends Block {
 
     protected final String name;
     protected int renderId = 0;
+    protected boolean isModel;
 
     public FoxBaseBlock(String modID, String name) {
         super(Material.rock);
         this.name = name;
         this.setBlockName(name);
         this.setBlockTextureName(modID + ":" + getFolder() + name);
-        this.lightOpacity = 1;
         this.setHardness(2.0F);
         this.setResistance(10.0F);
+    }
+
+    protected void setModel(int renderId) {
+        this.renderId = renderId;
+        isModel = true;
+        this.setLightOpacity(0);
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return !isModel;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return !isModel;
     }
 
     @Override
