@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings("unused")
 public class FoxBaseBlock extends Block {
     private static int staticRenderId;
     protected IIcon topIcon;
@@ -39,13 +40,17 @@ public class FoxBaseBlock extends Block {
     protected int renderId = 0;
     protected boolean isModel;
 
-    public FoxBaseBlock(String modID, String name) {
-        super(Material.rock);
+    public FoxBaseBlock(Material material, String modID, String name) {
+        super(material);
         this.name = name;
         this.setBlockName(name);
         this.setBlockTextureName(modID + ":" + getFolder() + name);
         this.setHardness(2.0F);
         this.setResistance(10.0F);
+    }
+
+    public FoxBaseBlock(String modID, String name) {
+        this(Material.rock, modID, name);
     }
 
     protected void setModel(int renderId) {

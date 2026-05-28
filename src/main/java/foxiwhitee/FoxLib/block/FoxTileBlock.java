@@ -4,6 +4,7 @@ import foxiwhitee.FoxLib.FoxLib;
 import foxiwhitee.FoxLib.api.FoxLibApi;
 import foxiwhitee.FoxLib.tile.FoxBaseTile;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
@@ -17,10 +18,14 @@ public class FoxTileBlock extends FoxBaseBlock implements ITileEntityProvider {
     private Class<? extends TileEntity> tileEntityType;
     private boolean hasTile;
 
-    public FoxTileBlock(String modID, String name, Class<? extends TileEntity> tileEntityClass) {
-        super(modID, name);
+    public FoxTileBlock(Material material, String modID, String name, Class<? extends TileEntity> tileEntityClass) {
+        super(material, modID, name);
         this.tileEntityType = tileEntityClass;
         this.hasTile = tileEntityClass != null;
+    }
+
+    public FoxTileBlock(String modID, String name, Class<? extends TileEntity> tileEntityClass) {
+        this(Material.rock, modID, name, tileEntityClass);
     }
 
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_) {
