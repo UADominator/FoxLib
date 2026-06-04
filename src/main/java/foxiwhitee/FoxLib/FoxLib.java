@@ -18,8 +18,8 @@ public class FoxLib {
     public static final String
         MODID = "foxlib",
         MODNAME = "FoxLib",
-        VERSION = "1.4",
-        DEPEND = "after:NotEnoughItems";
+        VERSION = "1.5",
+        DEPEND = "after:appliedenergistics2;after:NotEnoughItems;";
 
     @Mod.Instance(MODID)
     public static FoxLib instance;
