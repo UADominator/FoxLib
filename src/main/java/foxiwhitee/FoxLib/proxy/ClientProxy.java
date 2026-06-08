@@ -9,9 +9,11 @@ import foxiwhitee.FoxLib.client.render.FoxBlockRenderer;
 import foxiwhitee.FoxLib.client.render.RenderStaticBlock;
 import foxiwhitee.FoxLib.client.render.StaticRender;
 import foxiwhitee.FoxLib.client.render.StaticRenderHandler;
+import foxiwhitee.FoxLib.client.tooltips.TooltipEventHandler;
 import foxiwhitee.FoxLib.registries.RegisterUtils;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Map;
 
@@ -21,6 +23,7 @@ public class ClientProxy extends CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
+        MinecraftForge.EVENT_BUS.register(new TooltipEventHandler());
         StaticRenderHandler.loadStaticRenderData(event);
     }
 

@@ -1,0 +1,402 @@
+package foxiwhitee.FoxLib.client.tooltips;
+
+import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeFilter;
+import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeIcons;
+import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeInfo;
+import foxiwhitee.FoxLib.client.tooltips.theme.*;
+import foxiwhitee.FoxLib.config.FoxLibConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TooltipRenderer {
+    private static final RenderItem ITEM_RENDERER = new RenderItem();
+    private static final float[] PERIM_TMP = new float[2];
+    private static final int PADDING = 10;
+    private static final int APPEAR_DURATION_MS = 150;
+    private static final float INF_SCALE = 1.6F;
+    private static final String INF = "∞";
+    private static int cachedDisplayW = -1;
+    private static int cachedDisplayH = -1;
+    private static ScaledResolution cachedResolution;
+
+    public static boolean render(List<String> lines, ItemStack stack, int mouseX, int mouseY, FontRenderer fontRenderer, long now, int hash) {
+        if (lines == null || lines.isEmpty() || fontRenderer == null) {
+            return false;
+        }
+        if (!FoxLibConfig.enableCustomTooltips) {
+            return false;
+        }
+
+        List<String> originalLines = lines;
+        lines = AttributeFilter.stripVanillaAttributes(stack, lines);
+        if (lines.isEmpty()) {
+            return false;
+        }
+
+        Minecraft mc = Minecraft.getMinecraft();
+        ScaledResolution resolution = getResolution(mc);
+
+        int maxLineWidth = resolution.getScaledWidth() - 32;
+        lines = wrapLines(lines, fontRenderer, maxLineWidth);
+        TooltipTheme theme = ThemeRegister.findTheme(stack);
+        if (theme == null) {
+            return false;
+        }
+        boolean hasIcon = stack != null;
+        int iconSize = hasIcon ? 18 : 0;
+        int iconOffset = hasIcon ? iconSize + 6 : 0;
+
+        int textWidth = 0;
+        for (String line : lines) {
+            textWidth = Math.max(textWidth, fontRenderer.getStringWidth(line));
+        }
+
+        int textHeight = 8 + Math.max(0, lines.size() - 1) * 11;
+
+        List<AttributeInfo.Attr> attrs = AttributeInfo.compute(stack, lines, originalLines);
+        int attrRowWidth = computeAttrRowWidth(attrs, fontRenderer);
+        int attrRowHeight = attrs.isEmpty() ? 0 : (AttributeIcons.ICON_SIZE + 4);
+        int contentWidth = Math.max(textWidth, attrRowWidth) + iconOffset;
+        int contentHeight = Math.max(textHeight, iconSize) + attrRowHeight;
+
+        int boxWidth = contentWidth + PADDING * 2;
+        int boxHeight = contentHeight + PADDING * 2;
+
+        float overflowScale = 1.0F;
+        int screenW = resolution.getScaledWidth();
+        int screenH = resolution.getScaledHeight();
+        int maxBoxW = (int) (screenW * 0.8F);
+        int maxBoxH = (int) (screenH * 0.9F);
+        if (boxWidth > maxBoxW) {
+            overflowScale = Math.min(overflowScale, maxBoxW / (float) boxWidth);
+        }
+        if (boxHeight > maxBoxH) {
+            overflowScale = Math.min(overflowScale, maxBoxH / (float) boxHeight);
+        }
+        if (overflowScale < 0.55F) overflowScale = 0.55F;
+
+        int effectiveW = Math.round(boxWidth * overflowScale);
+        int effectiveH = Math.round(boxHeight * overflowScale);
+
+        int targetX = mouseX + 12;
+        int targetY = mouseY - 12;
+
+        if (targetX + effectiveW > screenW) {
+            targetX = mouseX - 16 - effectiveW;
+        }
+        if (targetX < 4) {
+            targetX = 4;
+        }
+        if (targetX + effectiveW > screenW - 4) {
+            targetX = screenW - effectiveW - 4;
+        }
+        if (targetY + effectiveH > screenH) {
+            targetY = mouseY - effectiveH - 12;
+        }
+        if (targetY < 4) {
+            targetY = 4;
+        }
+        if (targetY + effectiveH > screenH - 4) {
+            targetY = screenH - effectiveH - 4;
+        }
+
+        float speed = (float) FoxLibConfig.animationSpeed;
+        if (speed <= 0F) speed = 1F;
+        int effectiveAppearMs = Math.max(1, Math.round(APPEAR_DURATION_MS / speed));
+
+        TooltipState state = TooltipState.get(now, hash, effectiveAppearMs, theme);
+        float dt = TooltipParticles.advance(now);
+
+        float rawX = targetX;
+        float rawY = targetY;
+
+        float appearProgress = TooltipDraw.clamp01((now - state.hoverStartMs) / (float) effectiveAppearMs);
+        float appear = TooltipDraw.smootherStep(appearProgress);
+        float scaleAppear = TooltipDraw.easeOutCubic(appearProgress);
+        float alphaAppear = TooltipDraw.easeOutCubic(appearProgress);
+
+        float t = (float) ((now % 100000000L) / 1000.0D);
+        float pulse = naturalPulse(t);
+        float scale = (0.82F + scaleAppear * 0.18F) * overflowScale;
+        float slideY = (1.0F - alphaAppear) * 4.0F;
+
+        float overflowShiftX = boxWidth * (1.0F - overflowScale) / 2.0F;
+        float overflowShiftY = boxHeight * (1.0F - overflowScale) / 2.0F;
+        int snappedX = Math.round(rawX - overflowShiftX);
+        int snappedY = Math.round(rawY - overflowShiftY);
+        float pivotX = (float) snappedX + boxWidth * 0.5F;
+        float pivotY = (float) snappedY + boxHeight * 0.5F;
+
+        ThemePalette palette = ThemePalette.make(theme, pulse, alphaAppear);
+
+        GL11.glPushMatrix();
+        if (slideY != 0F) GL11.glTranslatef(0F, slideY, 0F);
+        GL11.glTranslatef(pivotX, pivotY, 0.0F);
+        GL11.glScalef(scale, scale, 1.0F);
+        GL11.glTranslatef(-pivotX, -pivotY, 0.0F);
+
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glEnable(GL11.GL_BLEND);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+
+        float glowPulse = 0.85F + 0.4F * pulse;
+        for (int i = 1; i <= 6; i++) {
+            float layerAlpha = (0.65F / (i + 0.4F)) * glowPulse;
+            int c = TooltipDraw.scaleAlpha(palette.glow, layerAlpha * alphaAppear);
+            TooltipDraw.rect((float) snappedX - i, (float) snappedY - i, (float) snappedX + boxWidth + i, (float) snappedY + boxHeight + i, c);
+        }
+
+        OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
+        FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
+        drawBorderShimmer((float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, t, alphaAppear);
+//        if (medallionsOn) { todo
+//            drawExternalMedallions(theme, drawX, drawY, boxWidth, boxHeight, palette, t, appear, alphaAppear);
+//        }
+//        if (medallionAuraOn) {
+//            emitMedallionAura(theme, drawX, drawY, boxWidth, boxHeight, dt, now, palette, alphaAppear);
+//        }
+
+        ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
+
+        int textX = (int) ((float) snappedX + PADDING + iconOffset);
+        int textY = (int) ((float) snappedY + PADDING + 1);
+
+        if (hasIcon) {
+            float iconX = (float) snappedX + PADDING;
+            float iconY = (float) snappedY + PADDING;
+            drawItemSlotFrame(iconX, iconY, theme, t, alphaAppear);
+            float visualIconX = pivotX + scale * (iconX - pivotX);
+            float visualIconY = pivotY + scale * (iconY - pivotY);
+            GL11.glPushMatrix();
+            GL11.glTranslatef(pivotX, pivotY, 0F);
+            GL11.glScalef(1F / scale, 1F / scale, 1F);
+            GL11.glTranslatef(-pivotX, -pivotY, 0F);
+            drawItemIcon(stack, fontRenderer, Math.round(visualIconX), Math.round(visualIconY));
+            GL11.glPopMatrix();
+        }
+
+        for (int i = 0; i < lines.size(); i++) {
+            fontRenderer.drawStringWithShadow(lines.get(i), textX, textY, 0xFFFFFFFF);
+            textY += (i == 0) ? 10 : 11;
+        }
+
+        if (!attrs.isEmpty()) {
+            float attrY = (float) snappedY + boxHeight - PADDING - AttributeIcons.ICON_SIZE;
+            float attrX = (float) snappedX + PADDING + iconOffset;
+            float fadePos = TooltipDraw.clamp01(alphaAppear * 1.5F - lines.size() * 0.06F);
+            float rowAlpha = TooltipDraw.smootherStep(fadePos);
+            drawAttributeRow(attrs, attrX, attrY, fontRenderer, rowAlpha);
+        }
+
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glPopMatrix();
+        return true;
+    }
+
+    private static ScaledResolution getResolution(Minecraft mc) {
+        if (mc.displayWidth != cachedDisplayW || mc.displayHeight != cachedDisplayH || cachedResolution == null) {
+            cachedResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+            cachedDisplayW = mc.displayWidth;
+            cachedDisplayH = mc.displayHeight;
+        }
+        return cachedResolution;
+    }
+
+    private static List<String> wrapLines(List<String> lines, FontRenderer fontRenderer, int maxWidth) {
+        if (maxWidth <= 60) {
+            return lines;
+        }
+
+        int n = lines.size();
+        int[] widths = new int[n];
+        boolean anyOver = false;
+        for (int i = 0; i < n; i++) {
+            widths[i] = fontRenderer.getStringWidth(lines.get(i));
+            if (widths[i] > maxWidth) {
+                anyOver = true;
+            }
+        }
+        if (!anyOver) {
+            return lines;
+        }
+
+        List<String> out = new ArrayList<>(n + 4);
+        for (int i = 0; i < n; i++) {
+            String line = lines.get(i);
+            if (widths[i] <= maxWidth) {
+                out.add(line);
+            } else {
+                List<String> wrapped = fontRenderer.listFormattedStringToWidth(line, maxWidth);
+                for (Object w : wrapped) {
+                    out.add(String.valueOf(w));
+                }
+            }
+        }
+        return out;
+    }
+
+    private static int computeAttrRowWidth(List<AttributeInfo.Attr> attrs, FontRenderer fontRenderer) {
+        if (attrs.isEmpty()) {
+            return 0;
+        }
+        int total = 0;
+        for (int i = 0; i < attrs.size(); i++) {
+            String v = attrs.get(i).value;
+            int textW = INF.equals(v) ? Math.round(fontRenderer.getStringWidth(v) * INF_SCALE) : fontRenderer.getStringWidth(v);
+            total += AttributeIcons.ICON_SIZE + 2 + textW;
+            if (i < attrs.size() - 1) {
+                total += 6;
+            }
+        }
+        return total;
+    }
+
+    private static float naturalPulse(float t) {
+        float wave1 = (float) Math.sin(t * 1.25F);
+        float wave2 = (float) Math.sin(t * 2.40F + 1.3F);
+        float wave3 = (float) Math.sin(t * 0.55F + 2.2F);
+        return TooltipDraw.clamp01(0.5F + 0.22F * wave1 + 0.16F * wave2 + 0.12F * wave3);
+    }
+
+    private static void drawBorderShimmer(float x, float y, float w, float h, ThemePalette palette, float t, float alphaMul) {
+        float perimeter = 2 * (w + h);
+        int comets = 3;
+        int trailLen = 12;
+        for (int c = 0; c < comets; c++) {
+            float speed = (0.18F + c * 0.07F) / 3.0F;
+            float sweep = TooltipDraw.fract(t * speed + c / (float) comets);
+            int color = (c % 2 == 0) ? palette.borderBright : palette.accent;
+            for (int i = 0; i < trailLen; i++) {
+                float p = sweep - (i * 5F) / perimeter;
+                p -= (float) Math.floor(p);
+                pointOnPerimeter(x, y, w, h, p);
+                float fade = (trailLen - i) / (float) trailLen;
+                int col = TooltipDraw.scaleAlpha(color, fade * 0.95F * alphaMul);
+                TooltipDraw.rect(PERIM_TMP[0] - 1, PERIM_TMP[1] - 1, PERIM_TMP[0] + 1.5F, PERIM_TMP[1] + 1.5F, col);
+            }
+        }
+    }
+
+    private static void pointOnPerimeter(float x, float y, float w, float h, float progress) {
+        float perim = 2 * (w + h);
+        float pos = progress * perim;
+        if (pos < w) {
+            TooltipRenderer.PERIM_TMP[0] = x + pos;
+            TooltipRenderer.PERIM_TMP[1] = y;
+            return;
+        }
+        pos -= w;
+        if (pos < h) {
+            TooltipRenderer.PERIM_TMP[0] = x + w;
+            TooltipRenderer.PERIM_TMP[1] = y + pos;
+            return;
+        }
+        pos -= h;
+        if (pos < w) {
+            TooltipRenderer.PERIM_TMP[0] = x + w - pos;
+            TooltipRenderer.PERIM_TMP[1] = y + h;
+            return;
+        }
+        pos -= w;
+        TooltipRenderer.PERIM_TMP[0] = x;
+        TooltipRenderer.PERIM_TMP[1] = y + h - pos;
+    }
+
+    private static void drawItemSlotFrame(float x, float y, TooltipTheme theme, float t, float alphaMul) {
+        FrameStyle s = theme.getStyle();
+        int outer = (s.borderOuter.getRGB() & 0x00FFFFFF) | ((int) (220 * alphaMul) << 24);
+        int innerFill = (0x000000) | ((int) (180 * alphaMul) << 24);
+        int sheen = (0xFFFFFF) | ((int) (110 * alphaMul) << 24);
+
+        float pad = 1F;
+        float left = x - pad;
+        float top = y - pad;
+        float right = x + 16 + pad;
+        float bottom = y + 16 + pad;
+
+        TooltipDraw.rect(left - 1, top - 1, right + 1, top, outer);
+        TooltipDraw.rect(left - 1, bottom, right + 1, bottom + 1, outer);
+        TooltipDraw.rect(left - 1, top, left, bottom, outer);
+        TooltipDraw.rect(right, top, right + 1, bottom, outer);
+
+        TooltipDraw.rect(left, top, right, bottom, innerFill);
+
+        TooltipDraw.rect(left, top, right, top + 0.5F, sheen);
+        TooltipDraw.rect(left, top, left + 0.5F, bottom, sheen);
+
+        float pulse = 0.45F + 0.55F * (float) Math.sin(t * 1.6F);
+        int corner = (s.gold.getRGB() & 0x00FFFFFF) | ((int) (200 * alphaMul * pulse) << 24);
+        TooltipDraw.rect(left - 1, top - 1, left + 1, top + 1, corner);
+        TooltipDraw.rect(right - 1, top - 1, right + 1, top + 1, corner);
+        TooltipDraw.rect(left - 1, bottom - 1, left + 1, bottom + 1, corner);
+        TooltipDraw.rect(right - 1, bottom - 1, right + 1, bottom + 1, corner);
+    }
+
+    private static void drawItemIcon(ItemStack stack, FontRenderer fontRenderer, float x, float y) {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        GL11.glColor4f(1F, 1F, 1F, 1F);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        RenderHelper.enableGUIStandardItemLighting();
+
+        float prevZ = ITEM_RENDERER.zLevel;
+        ITEM_RENDERER.zLevel = 400.0F;
+        try {
+            ITEM_RENDERER.renderItemAndEffectIntoGUI(fontRenderer, mc.getTextureManager(), stack, (int) x, (int) y);
+            ItemStack overlayStack = stack;
+            if (stack.stackSize > 1) {
+                overlayStack = stack.copy();
+                overlayStack.stackSize = 1;
+            }
+            ITEM_RENDERER.renderItemOverlayIntoGUI(fontRenderer, mc.getTextureManager(), overlayStack, (int) x, (int) y);
+        } finally {
+            ITEM_RENDERER.zLevel = prevZ;
+        }
+
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+    }
+
+    private static void drawAttributeRow(java.util.List<AttributeInfo.Attr> attrs, float x, float y, FontRenderer fontRenderer, float rowAlpha) {
+        if (rowAlpha <= 0F) return;
+        int alphaInt = TooltipDraw.clampInt((int) (255 * rowAlpha), 0, 255);
+        float cursor = x;
+        for (AttributeInfo.Attr attr : attrs) {
+            AttributeIcons.draw(attr.kind, cursor, y, rowAlpha);
+            cursor += AttributeIcons.ICON_SIZE + 2;
+            int color = (alphaInt << 24) | (attr.color & 0x00FFFFFF);
+            int textY = (int) (y + (AttributeIcons.ICON_SIZE - 8) / 2F);
+            if (INF.equals(attr.value)) {
+                float pivotX = cursor;
+                float pivotY = textY + 4F;
+                GL11.glPushMatrix();
+                GL11.glTranslatef(pivotX, pivotY, 0F);
+                GL11.glScalef(INF_SCALE, INF_SCALE, 1F);
+                GL11.glTranslatef(-pivotX, -pivotY, 0F);
+                fontRenderer.drawStringWithShadow(INF, (int) cursor, textY, color);
+                GL11.glPopMatrix();
+                cursor += fontRenderer.getStringWidth(INF) * INF_SCALE + 6;
+            } else {
+                fontRenderer.drawStringWithShadow(attr.value, (int) cursor, textY, color);
+                cursor += fontRenderer.getStringWidth(attr.value) + 6;
+            }
+        }
+    }
+}
