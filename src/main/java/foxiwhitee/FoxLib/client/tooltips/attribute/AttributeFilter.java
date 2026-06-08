@@ -1,11 +1,11 @@
 package foxiwhitee.FoxLib.client.tooltips.attribute;
 
 import foxiwhitee.FoxLib.config.FoxLibConfig;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class AttributeFilter {
             if (processed.startsWith("L+")) {
                 String key = processed.substring(2);
                 try {
-                    processed = I18n.format(key);
+                    processed = StatCollector.translateToLocal(key);
                 } catch (Throwable t) {
                     processed = key;
                 }
@@ -81,6 +81,9 @@ public class AttributeFilter {
             }
 
             String l = norm[i];
+            if (l.trim().isEmpty()) {
+                continue;
+            }
             if (enchantNames.contains(l)) {
                 out.add(raw);
                 continue;

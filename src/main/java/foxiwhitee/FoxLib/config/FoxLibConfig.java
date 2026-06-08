@@ -29,16 +29,19 @@ public class FoxLibConfig {
         "damage: %s",
         "сила атаки: %s",
         "міцність: %s / %s",
+        "міцність: %s/%s",
         "durability: %s / %s",
+        "durability: %s/%s",
         "застосувань: %s",
         "ефективність: %s",
         "час горіння: %s",
         "fuel: %s",
+        "burn time: %s",
         "ситість: %s",
         "насичення: %s",
         "hunger: %s",
-        "thirst: %s",
-        "спрага: %s"
+        "+%s attack damage",
+        "+%s сила атаки"
     };
 
     @ConfigValue(category = "Tooltips.Attributes", desc = "Attribute text that will be understood as damage")
@@ -46,6 +49,7 @@ public class FoxLibConfig {
         "шкода",
         "урон",
         "damage",
+        "attack damage",
         "сила атаки"
     };
 
