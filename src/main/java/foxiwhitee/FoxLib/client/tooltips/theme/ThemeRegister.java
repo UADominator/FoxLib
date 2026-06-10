@@ -19,9 +19,8 @@ public class ThemeRegister {
             SeparatorConfig separators = new SeparatorConfig();
             List<Integer> colors = Arrays.asList(0x9C8FE0, 0xCFC2FF, 0x9C8FE0, 0x4533A8);
             separators.addSeparator(0, colors);
-            separators.addSeparator(-1, colors);
             ThemeRegister.TOOLTIPS.put("minecraft", new TooltipTheme("test", ForObject.MOD, "minecraft", style,
-                cfg, separators));
+                cfg, separators, true));
         }
         if (stack == null) {
             return null;

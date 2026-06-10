@@ -25,7 +25,6 @@ import java.util.List;
 
 public class TooltipRenderer {
     private static final RenderItem ITEM_RENDERER = new RenderItem();
-    private static final float[] PERIM_TMP = new float[2];
     private static final int PADDING = 10;
     private static final int APPEAR_DURATION_MS = 150;
     private static final float INF_SCALE = 1.6F;
@@ -57,7 +56,7 @@ public class TooltipRenderer {
         if (theme == null) {
             return false;
         }
-        boolean hasIcon = stack != null;
+        boolean hasIcon = stack != null && theme.isDrawIcon();
         int iconSize = hasIcon ? 18 : 0;
         int iconOffset = hasIcon ? iconSize + 6 : 0;
 
@@ -168,13 +167,6 @@ public class TooltipRenderer {
 
         OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
         FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
-        drawBorderShimmer((float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, t, alphaAppear);
-//        if (medallionsOn) { todo
-//            drawExternalMedallions(theme, drawX, drawY, boxWidth, boxHeight, palette, t, appear, alphaAppear);
-//        }
-//        if (medallionAuraOn) {
-//            emitMedallionAura(theme, drawX, drawY, boxWidth, boxHeight, dt, now, palette, alphaAppear);
-//        }
 
         ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
 
@@ -184,7 +176,7 @@ public class TooltipRenderer {
         if (hasIcon) {
             float iconX = (float) snappedX + PADDING;
             float iconY = (float) snappedY + PADDING;
-            drawItemSlotFrame(iconX, iconY, theme, t, alphaAppear);
+            drawItemSlotFrame(iconX, iconY, theme, alphaAppear);
             float visualIconX = pivotX + scale * (iconX - pivotX);
             float visualIconY = pivotY + scale * (iconY - pivotY);
             GL11.glPushMatrix();
@@ -314,51 +306,7 @@ public class TooltipRenderer {
         return TooltipDraw.clamp01(0.5F + 0.22F * wave1 + 0.16F * wave2 + 0.12F * wave3);
     }
 
-    private static void drawBorderShimmer(float x, float y, float w, float h, ThemePalette palette, float t, float alphaMul) {
-        float perimeter = 2 * (w + h);
-        int comets = 3;
-        int trailLen = 12;
-        for (int c = 0; c < comets; c++) {
-            float speed = (0.18F + c * 0.07F) / 3.0F;
-            float sweep = TooltipDraw.fract(t * speed + c / (float) comets);
-            int color = (c % 2 == 0) ? palette.borderBright : palette.accent;
-            for (int i = 0; i < trailLen; i++) {
-                float p = sweep - (i * 5F) / perimeter;
-                p -= (float) Math.floor(p);
-                pointOnPerimeter(x, y, w, h, p);
-                float fade = (trailLen - i) / (float) trailLen;
-                int col = TooltipDraw.scaleAlpha(color, fade * 0.95F * alphaMul);
-                TooltipDraw.rect(PERIM_TMP[0] - 1, PERIM_TMP[1] - 1, PERIM_TMP[0] + 1.5F, PERIM_TMP[1] + 1.5F, col);
-            }
-        }
-    }
-
-    private static void pointOnPerimeter(float x, float y, float w, float h, float progress) {
-        float perim = 2 * (w + h);
-        float pos = progress * perim;
-        if (pos < w) {
-            TooltipRenderer.PERIM_TMP[0] = x + pos;
-            TooltipRenderer.PERIM_TMP[1] = y;
-            return;
-        }
-        pos -= w;
-        if (pos < h) {
-            TooltipRenderer.PERIM_TMP[0] = x + w;
-            TooltipRenderer.PERIM_TMP[1] = y + pos;
-            return;
-        }
-        pos -= h;
-        if (pos < w) {
-            TooltipRenderer.PERIM_TMP[0] = x + w - pos;
-            TooltipRenderer.PERIM_TMP[1] = y + h;
-            return;
-        }
-        pos -= w;
-        TooltipRenderer.PERIM_TMP[0] = x;
-        TooltipRenderer.PERIM_TMP[1] = y + h - pos;
-    }
-
-    private static void drawItemSlotFrame(float x, float y, TooltipTheme theme, float t, float alphaMul) {
+    private static void drawItemSlotFrame(float x, float y, TooltipTheme theme, float alphaMul) {
         FrameStyle s = theme.getStyle();
         int outer = (s.borderOuter.getRGB() & 0x00FFFFFF) | ((int) (220 * alphaMul) << 24);
         int innerFill = (0x000000) | ((int) (180 * alphaMul) << 24);
@@ -379,13 +327,6 @@ public class TooltipRenderer {
 
         TooltipDraw.rect(left, top, right, top + 0.5F, sheen);
         TooltipDraw.rect(left, top, left + 0.5F, bottom, sheen);
-
-        float pulse = 0.45F + 0.55F * (float) Math.sin(t * 1.6F);
-        int corner = (s.gold.getRGB() & 0x00FFFFFF) | ((int) (200 * alphaMul * pulse) << 24);
-        TooltipDraw.rect(left - 1, top - 1, left + 1, top + 1, corner);
-        TooltipDraw.rect(right - 1, top - 1, right + 1, top + 1, corner);
-        TooltipDraw.rect(left - 1, bottom - 1, left + 1, bottom + 1, corner);
-        TooltipDraw.rect(right - 1, bottom - 1, right + 1, bottom + 1, corner);
     }
 
     private static void drawItemIcon(ItemStack stack, FontRenderer fontRenderer, float x, float y) {

@@ -12,14 +12,16 @@ public class TooltipTheme {
     private final FrameStyle style;
     private final ParticleConfig fx;
     private final SeparatorConfig separatorConfig;
+    private final boolean drawIcon;
 
-    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig) {
+    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon) {
         this.id = id;
         this.forObject = forObject;
         this.object = object;
         this.style = style;
         this.fx = fx;
         this.separatorConfig = separatorConfig;
+        this.drawIcon = drawIcon;
     }
 
     public String getId() {
@@ -36,6 +38,10 @@ public class TooltipTheme {
 
     public String getObject() {
         return object;
+    }
+
+    public boolean isDrawIcon() {
+        return drawIcon;
     }
 
     public SeparatorConfig getSeparatorConfig() {
