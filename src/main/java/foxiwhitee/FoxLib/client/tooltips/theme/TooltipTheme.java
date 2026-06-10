@@ -1,6 +1,7 @@
 package foxiwhitee.FoxLib.client.tooltips.theme;
 
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorConfig;
 
@@ -13,8 +14,9 @@ public class TooltipTheme {
     private final ParticleConfig fx;
     private final SeparatorConfig separatorConfig;
     private final boolean drawIcon;
+    private final ImageFrame frame;
 
-    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon) {
+    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, ImageFrame frame) {
         this.id = id;
         this.forObject = forObject;
         this.object = object;
@@ -22,6 +24,7 @@ public class TooltipTheme {
         this.fx = fx;
         this.separatorConfig = separatorConfig;
         this.drawIcon = drawIcon;
+        this.frame = frame;
     }
 
     public String getId() {
@@ -55,5 +58,9 @@ public class TooltipTheme {
 
     public ParticleConfig getFx() {
         return fx;
+    }
+
+    public ImageFrame getFrame() {
+        return frame;
     }
 }

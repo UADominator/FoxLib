@@ -6,6 +6,7 @@ import foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute.AttributeInfo;
 import foxiwhitee.FoxLib.client.tooltips.theme.*;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameRenderer;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorData;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -167,7 +169,9 @@ public class TooltipRenderer {
 
         OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
         FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
-
+        if (theme.getFrame() != null) {
+            drawTextureFrame((float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear, theme.getFrame());
+        }
         ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
 
         int textX = (int) ((float) snappedX + PADDING + iconOffset);
@@ -470,4 +474,107 @@ public class TooltipRenderer {
         float b = c1.getBlue() * (1 - ratio) + c2.getBlue() * ratio;
         return new Color((int)r, (int)g, (int)b).getRGB();
     }
+
+    public static void drawTextureFrame(float x, float y, float width, float height, float alpha, ImageFrame imageFrame) {
+        int realCenterWidth = imageFrame.realCenterWidth;
+        ResourceLocation texture = imageFrame.texture;
+        float baseTextureWidth = imageFrame.width;
+
+        final float baseTextureHeight = 32.0F;
+        final float baseCornerWidth = 16.0F;
+        final float baseCornerHeight = 16.0F;
+        final float baseMaxSideWidth = 96.0F;
+        final float baseSideHeight = 16.0F;
+        final float centerTopYShift = -2.0F;
+        final float centerBottomYShift = 2.0F;
+        final float offsetLeft = -10.0F;
+        final float offsetRight = 10.0F;
+        final float offsetTop = -10.0F;
+        final float offsetBottom = 10.0F;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.getTextureManager().bindTexture(texture);
+
+        int textureId = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
+        float uCornerL = baseCornerWidth / baseTextureWidth;
+        float uCornerR = 1.0F - (baseCornerWidth / baseTextureWidth);
+        float vCornerT = baseCornerHeight / baseTextureHeight;
+        float vCornerB = 1.0F - (baseCornerHeight / baseTextureHeight);
+
+        float cornerLeftOuterX  = x + offsetLeft;
+        float cornerRightOuterX = x + width + offsetRight;
+
+        float cornerLeftInnerX  = cornerLeftOuterX + baseCornerWidth;
+        float cornerRightInnerX = cornerRightOuterX - baseCornerWidth;
+
+        float posY0 = y + offsetTop;
+        float posY3 = y + height + offsetBottom;
+        float posY1 = posY0 + baseCornerHeight;
+        float posY2 = posY3 - baseCornerHeight;
+
+        float cleanAvailableSpace = cornerRightInnerX - cornerLeftInnerX;
+
+        Tessellator tessellator = Tessellator.instance;
+        GL11.glEnable(GL11.GL_BLEND);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
+
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(cornerLeftOuterX, posY1, 0.0D, 0.0F, vCornerT);
+        tessellator.addVertexWithUV(cornerLeftInnerX, posY1, 0.0D, uCornerL, vCornerT);
+        tessellator.addVertexWithUV(cornerLeftInnerX, posY0, 0.0D, uCornerL, 0.0F);
+        tessellator.addVertexWithUV(cornerLeftOuterX, posY0, 0.0D, 0.0F, 0.0F);
+
+        tessellator.addVertexWithUV(cornerRightInnerX, posY1, 0.0D, uCornerR, vCornerT);
+        tessellator.addVertexWithUV(cornerRightOuterX, posY1, 0.0D, 1.0F, vCornerT);
+        tessellator.addVertexWithUV(cornerRightOuterX, posY0, 0.0D, 1.0F, 0.0F);
+        tessellator.addVertexWithUV(cornerRightInnerX, posY0, 0.0D, uCornerR, 0.0F);
+
+        tessellator.addVertexWithUV(cornerLeftOuterX, posY3, 0.0D, 0.0F, 1.0F);
+        tessellator.addVertexWithUV(cornerLeftInnerX, posY3, 0.0D, uCornerL, 1.0F);
+        tessellator.addVertexWithUV(cornerLeftInnerX, posY2, 0.0D, uCornerL, vCornerB);
+        tessellator.addVertexWithUV(cornerLeftOuterX, posY2, 0.0D, 0.0F, vCornerB);
+
+        tessellator.addVertexWithUV(cornerRightInnerX, posY3, 0.0D, uCornerR, 1.0F);
+        tessellator.addVertexWithUV(cornerRightOuterX, posY3, 0.0D, 1.0F, 1.0F);
+        tessellator.addVertexWithUV(cornerRightOuterX, posY2, 0.0D, 1.0F, vCornerB);
+        tessellator.addVertexWithUV(cornerRightInnerX, posY2, 0.0D, uCornerR, vCornerB);
+        tessellator.draw();
+
+        if (cleanAvailableSpace >= realCenterWidth) {
+            float pctRealSideW = realCenterWidth / baseTextureWidth;
+            float pctCornerW = baseCornerWidth / baseTextureWidth;
+            float pctMaxSideW = baseMaxSideWidth / baseTextureWidth;
+
+            float pctSideStart = pctCornerW + ((pctMaxSideW - pctRealSideW) / 2.0F);
+            float pctSideEnd = pctSideStart + pctRealSideW;
+
+            float centerX = x + (width / 2.0F);
+            float midXStart = centerX - (realCenterWidth / 2.0F);
+            float midXEnd = centerX + (realCenterWidth / 2.0F);
+
+            tessellator.startDrawingQuads();
+
+            float topY0 = posY0 + centerTopYShift;
+            float topY1 = posY0 + baseSideHeight + centerTopYShift;
+
+            tessellator.addVertexWithUV(midXStart, topY1, 0.0D, pctSideStart, vCornerT);
+            tessellator.addVertexWithUV(midXEnd, topY1, 0.0D, pctSideEnd,   vCornerT);
+            tessellator.addVertexWithUV(midXEnd, topY0, 0.0D, pctSideEnd,   0.0F);
+            tessellator.addVertexWithUV(midXStart, topY0, 0.0D, pctSideStart, 0.0F);
+
+            float botY2 = posY3 - baseSideHeight + centerBottomYShift;
+            float botY3 = posY3 + centerBottomYShift;
+
+            tessellator.addVertexWithUV(midXStart, botY3, 0.0D, pctSideStart, 1.0F);
+            tessellator.addVertexWithUV(midXEnd, botY3, 0.0D, pctSideEnd,   1.0F);
+            tessellator.addVertexWithUV(midXEnd, botY2, 0.0D, pctSideEnd,   vCornerB);
+            tessellator.addVertexWithUV(midXStart, botY2, 0.0D, pctSideStart, vCornerB);
+
+            tessellator.draw();
+        }
+    }
+
 }
