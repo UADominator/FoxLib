@@ -1,5 +1,7 @@
 package foxiwhitee.FoxLib.client.tooltips.theme;
 
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
+
 import java.awt.*;
 
 public final class ThemePalette {

@@ -1,6 +1,7 @@
-package foxiwhitee.FoxLib.client.tooltips.theme;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.frame;
 
 import foxiwhitee.FoxLib.FoxLib;
+import foxiwhitee.FoxLib.client.tooltips.theme.TooltipTheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;

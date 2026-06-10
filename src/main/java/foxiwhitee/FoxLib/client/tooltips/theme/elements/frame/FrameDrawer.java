@@ -1,4 +1,6 @@
-package foxiwhitee.FoxLib.client.tooltips.theme;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.frame;
+
+import foxiwhitee.FoxLib.client.tooltips.theme.TooltipTheme;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

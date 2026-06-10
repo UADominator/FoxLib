@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.client.tooltips.attribute;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute;
 
 import com.google.common.collect.Multimap;
 import foxiwhitee.FoxLib.FoxLib;

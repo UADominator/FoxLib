@@ -1,6 +1,6 @@
 package foxiwhitee.FoxLib.client.tooltips;
 
-import foxiwhitee.FoxLib.client.tooltips.theme.ParticleKind;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleKind;
 
 import java.util.Iterator;
 import java.util.List;

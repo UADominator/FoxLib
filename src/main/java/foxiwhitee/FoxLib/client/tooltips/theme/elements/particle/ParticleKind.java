@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.client.tooltips.theme;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.particle;
 
 import foxiwhitee.FoxLib.client.tooltips.TooltipDraw;
 import foxiwhitee.FoxLib.client.tooltips.TooltipParticles;

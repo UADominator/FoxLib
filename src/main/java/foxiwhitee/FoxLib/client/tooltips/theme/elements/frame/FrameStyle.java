@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.client.tooltips.theme;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.frame;
 
 import java.awt.*;
 

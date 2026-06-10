@@ -2,6 +2,7 @@ package foxiwhitee.FoxLib.client.tooltips.theme;
 
 import foxiwhitee.FoxLib.client.tooltips.TooltipDraw;
 import foxiwhitee.FoxLib.client.tooltips.TooltipParticles;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 
 import java.util.List;
 import java.util.Random;

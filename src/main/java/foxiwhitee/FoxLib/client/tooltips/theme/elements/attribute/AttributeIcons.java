@@ -1,6 +1,6 @@
-package foxiwhitee.FoxLib.client.tooltips.attribute;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute;
 
-import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeInfo.Kind;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute.AttributeInfo.Kind;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;

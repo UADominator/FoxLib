@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.client.tooltips.attribute;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute;
 
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.enchantment.Enchantment;

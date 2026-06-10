@@ -1,20 +1,25 @@
 package foxiwhitee.FoxLib.client.tooltips;
 
-import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeFilter;
-import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeIcons;
-import foxiwhitee.FoxLib.client.tooltips.attribute.AttributeInfo;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute.AttributeFilter;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute.AttributeIcons;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.attribute.AttributeInfo;
 import foxiwhitee.FoxLib.client.tooltips.theme.*;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameRenderer;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorData;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +67,9 @@ public class TooltipRenderer {
         }
 
         int textHeight = 8 + Math.max(0, lines.size() - 1) * 11;
+        if (lines.size() > 1) {
+            textHeight += 6 * Math.min(lines.size() - 1, theme.getSeparatorConfig().getSeparators().size());
+        }
 
         List<AttributeInfo.Attr> attrs = AttributeInfo.compute(stack, lines, originalLines);
         int attrRowWidth = computeAttrRowWidth(attrs, fontRenderer);
@@ -187,9 +195,44 @@ public class TooltipRenderer {
             GL11.glPopMatrix();
         }
 
-        for (int i = 0; i < lines.size(); i++) {
-            fontRenderer.drawStringWithShadow(lines.get(i), textX, textY, 0xFFFFFFFF);
-            textY += (i == 0) ? 10 : 11;
+        if (theme.getSeparatorConfig().getSeparators().isEmpty()) {
+            for (int i = 0; i < lines.size(); i++) {
+                fontRenderer.drawStringWithShadow(lines.get(i), textX, textY, 0xFFFFFFFF);
+                textY += (i == 0) ? 10 : 11;
+            }
+        } else {
+            int textPosition = 0;
+            SeparatorData last = null;
+            for (SeparatorData s : theme.getSeparatorConfig().getSeparators()) {
+                if (s.position == -1) {
+                    last = s;
+                    continue;
+                }
+                int needLine = s.position + 1;
+                if (needLine >= lines.size()) {
+                    break;
+                }
+                while (textPosition != needLine) {
+                    fontRenderer.drawStringWithShadow(lines.get(textPosition), textX, textY, 0xFFFFFFFF);
+                    textY += (textPosition == 0) ? 10 : 11;
+                    textPosition++;
+                }
+                textY += 4;
+                float lineWidth = contentWidth - iconOffset - 4;
+                drawHorizontalSeparator(textX + 2, textY - 2, lineWidth, alphaAppear, s.colors);
+
+                textY += 3;
+            }
+            for (; textPosition < lines.size(); textPosition++) {
+                fontRenderer.drawStringWithShadow(lines.get(textPosition), textX, textY, 0xFFFFFFFF);
+                textY += (textPosition == 0) ? 10 : 11;
+            }
+            if (last != null) {
+                textY += 4;
+                float lineWidth = contentWidth - iconOffset - 4;
+                drawHorizontalSeparator(textX + 2, textY - 2, lineWidth, alphaAppear, last.colors);
+                boxHeight += 4;
+            }
         }
 
         if (!attrs.isEmpty()) {
@@ -398,5 +441,92 @@ public class TooltipRenderer {
                 cursor += fontRenderer.getStringWidth(attr.value) + 6;
             }
         }
+    }
+
+    private static void drawHorizontalSeparator(float x, float y, float width, float alphaMul, List<Color> colors) {
+        if (alphaMul <= 0F || colors == null || colors.isEmpty()) return;
+
+        float lineThickness = 1.15F;
+        float baseAlphaMul = 0.8F * alphaMul;
+
+        Tessellator tessellator = Tessellator.instance;
+
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+        long time = System.currentTimeMillis();
+        int colorCount = colors.size();
+
+        int c1_rgb, c2_rgb;
+
+        if (colorCount == 1) {
+            c1_rgb = colors.get(0).getRGB();
+            c2_rgb = c1_rgb;
+        } else {
+            float speed = 0.001F;
+            float globalPhase = (time % 1000000) * speed;
+
+            int index1 = (int) globalPhase % colorCount;
+            int index2 = (index1 + 1) % colorCount;
+            float colorRatio = globalPhase % 1.0F;
+
+            c1_rgb = getInterpolatedColorRGB(colors.get(index1), colors.get(index2), colorRatio);
+            c2_rgb = getInterpolatedColorRGB(colors.get(index2), colors.get((index2 + 1) % colorCount), colorRatio);
+        }
+
+        float fadeW = width * 0.15F;
+        float centerW = width - (fadeW * 2);
+
+        float x2 = x + fadeW;
+        float x3 = x + fadeW + centerW;
+        float x4 = x + width;
+
+        tessellator.startDrawingQuads();
+        tessellator.setColorRGBA(0, 0, 0, 0);
+        tessellator.addVertex(x, y, 0.0D);
+        tessellator.addVertex(x, y + lineThickness, 0.0D);
+
+        int aCenter1 = (int) (220 * baseAlphaMul);
+        tessellator.setColorRGBA((c1_rgb >> 16) & 255, (c1_rgb >> 8) & 255, c1_rgb & 255, aCenter1);
+        tessellator.addVertex(x2, y + lineThickness, 0.0D);
+        tessellator.addVertex(x2, y, 0.0D);
+        tessellator.draw();
+
+        tessellator.startDrawingQuads();
+        tessellator.setColorRGBA((c1_rgb >> 16) & 255, (c1_rgb >> 8) & 255, c1_rgb & 255, aCenter1);
+        tessellator.addVertex(x2, y, 0.0D);
+        tessellator.addVertex(x2, y + lineThickness, 0.0D);
+
+        int aCenter2 = (int) (220 * baseAlphaMul);
+        tessellator.setColorRGBA((c2_rgb >> 16) & 255, (c2_rgb >> 8) & 255, c2_rgb & 255, aCenter2);
+        tessellator.addVertex(x3, y + lineThickness, 0.0D);
+        tessellator.addVertex(x3, y, 0.0D);
+        tessellator.draw();
+
+        tessellator.startDrawingQuads();
+        tessellator.setColorRGBA((c2_rgb >> 16) & 255, (c2_rgb >> 8) & 255, c2_rgb & 255, aCenter2);
+        tessellator.addVertex(x3, y, 0.0D);
+        tessellator.addVertex(x3, y + lineThickness, 0.0D);
+
+        tessellator.setColorRGBA(0, 0, 0, 0);
+        tessellator.addVertex(x4, y + lineThickness, 0.0D);
+        tessellator.addVertex(x4, y, 0.0D);
+        tessellator.draw();
+
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glPopAttrib();
+    }
+
+    private static int getInterpolatedColorRGB(Color c1, Color c2, float ratio) {
+        float r = c1.getRed() * (1 - ratio) + c2.getRed() * ratio;
+        float g = c1.getGreen() * (1 - ratio) + c2.getGreen() * ratio;
+        float b = c1.getBlue() * (1 - ratio) + c2.getBlue() * ratio;
+        return new Color((int)r, (int)g, (int)b).getRGB();
     }
 }
