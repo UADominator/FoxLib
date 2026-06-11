@@ -2,6 +2,7 @@ package foxiwhitee.FoxLib.client.tooltips.theme;
 
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorConfig;
 
@@ -14,9 +15,11 @@ public class TooltipTheme {
     private final ParticleConfig fx;
     private final SeparatorConfig separatorConfig;
     private final boolean drawIcon;
+    private final boolean enableShadow;
     private final ImageFrame frame;
+    private final InnerLineConfig innerLineConfig;
 
-    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, ImageFrame frame) {
+    public TooltipTheme(String id, ForObject forObject, String object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, boolean enableShadow, ImageFrame frame, InnerLineConfig innerLineConfig) {
         this.id = id;
         this.forObject = forObject;
         this.object = object;
@@ -24,7 +27,9 @@ public class TooltipTheme {
         this.fx = fx;
         this.separatorConfig = separatorConfig;
         this.drawIcon = drawIcon;
+        this.enableShadow = enableShadow;
         this.frame = frame;
+        this.innerLineConfig = innerLineConfig;
     }
 
     public String getId() {
@@ -47,6 +52,10 @@ public class TooltipTheme {
         return drawIcon;
     }
 
+    public boolean isEnableShadow() {
+        return enableShadow;
+    }
+
     public SeparatorConfig getSeparatorConfig() {
         return separatorConfig;
     }
@@ -62,5 +71,9 @@ public class TooltipTheme {
 
     public ImageFrame getFrame() {
         return frame;
+    }
+
+    public InnerLineConfig getInnerLineConfig() {
+        return innerLineConfig;
     }
 }

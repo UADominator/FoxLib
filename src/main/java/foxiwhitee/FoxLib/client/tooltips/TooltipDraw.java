@@ -1,9 +1,108 @@
 package foxiwhitee.FoxLib.client.tooltips;
 
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 
 public class TooltipDraw {
+    private static final long initTime = System.currentTimeMillis();
+
+    private static int interpolateColor(int color1, int color2, float ratio) {
+        int a1 = (color1 >> 24) & 255;
+        int r1 = (color1 >> 16) & 255;
+        int g1 = (color1 >> 8) & 255;
+        int b1 = color1 & 255;
+
+        int a2 = (color2 >> 24) & 255;
+        int r2 = (color2 >> 16) & 255;
+        int g2 = (color2 >> 8) & 255;
+        int b2 = color2 & 255;
+
+        int a = (int) (a1 + (a2 - a1) * ratio);
+        int r = (int) (r1 + (r2 - r1) * ratio);
+        int g = (int) (g1 + (g2 - g1) * ratio);
+        int b = (int) (b1 + (b2 - b1) * ratio);
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    public static void drawInnerLine(int x, int y, int width, int height, float animationSpeed, int[] colors) {
+        float time = (float) (System.currentTimeMillis() - initTime) / 1000.0F * animationSpeed;
+        float progress = time % 1.0F;
+
+        int maxSegments = colors.length - 1;
+
+        int cTopLeft =     getAnimatedColor(progress, 0.00F, colors, maxSegments);
+        int cTopRight =    getAnimatedColor(progress, 0.25F, colors, maxSegments);
+        int cBottomRight = getAnimatedColor(progress, 0.50F, colors, maxSegments);
+        int cBottomLeft =  getAnimatedColor(progress, 0.75F, colors, maxSegments);
+
+        int rx = x + 3;
+        int ry = y + 3;
+        int rWidth = width - 6;
+        int rHeight = height - 6;
+
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+
+        Tessellator tess = Tessellator.instance;
+
+        tess.startDrawingQuads();
+        setColor(tess, cTopLeft);
+        int zLevel = 399;
+        tess.addVertex(rx, ry, zLevel);
+        setColor(tess, cTopLeft);   tess.addVertex(rx, ry + 1, zLevel);
+        setColor(tess, cTopRight);  tess.addVertex(rx + rWidth, ry + 1, zLevel);
+        setColor(tess, cTopRight);  tess.addVertex(rx + rWidth, ry, zLevel);
+        tess.draw();
+
+        tess.startDrawingQuads();
+        setColor(tess, cTopRight);    tess.addVertex(rx + rWidth - 1, ry, zLevel);
+        setColor(tess, cTopRight);    tess.addVertex(rx + rWidth - 1, ry + rHeight, zLevel);
+        setColor(tess, cBottomRight); tess.addVertex(rx + rWidth, ry + rHeight, zLevel);
+        setColor(tess, cBottomRight); tess.addVertex(rx + rWidth, ry, zLevel);
+        tess.draw();
+
+        tess.startDrawingQuads();
+        setColor(tess, cBottomLeft);  tess.addVertex(rx, ry + rHeight - 1, zLevel);
+        setColor(tess, cBottomLeft);  tess.addVertex(rx, ry + rHeight, zLevel);
+        setColor(tess, cBottomRight); tess.addVertex(rx + rWidth, ry + rHeight, zLevel);
+        setColor(tess, cBottomRight); tess.addVertex(rx + rWidth, ry + rHeight - 1, zLevel);
+        tess.draw();
+
+        tess.startDrawingQuads();
+        setColor(tess, cTopLeft);    tess.addVertex(rx, ry, zLevel);
+        setColor(tess, cTopLeft);    tess.addVertex(rx, ry + rHeight, zLevel);
+        setColor(tess, cBottomLeft); tess.addVertex(rx + 1, ry + rHeight, zLevel);
+        setColor(tess, cBottomLeft); tess.addVertex(rx + 1, ry, zLevel);
+        tess.draw();
+
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+    private static int getAnimatedColor(float globalProgress, float phaseOffset, int[] colors, int maxSegments) {
+        float localProgress = (globalProgress + phaseOffset) % 1.0F;
+        float segmentPosition = localProgress * maxSegments;
+        int index = (int) segmentPosition;
+        float ratio = segmentPosition - index;
+
+        return interpolateColor(colors[index], colors[index + 1], ratio);
+    }
+
+    private static void setColor(Tessellator tess, int color) {
+        float a = (float) (color >> 24 & 255) / 255.0F;
+        float r = (float) (color >> 16 & 255) / 255.0F;
+        float g = (float) (color >> 8 & 255) / 255.0F;
+        float b = (float) (color & 255) / 255.0F;
+        tess.setColorRGBA_F(r, g, b, a);
+    }
+
     public static float clamp01(float v) {
         return v < 0.0F ? 0.0F : (Math.min(v, 1.0F));
     }
@@ -58,10 +157,6 @@ public class TooltipDraw {
         t.addVertex(left, top, 0);
         t.draw();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-    }
-
-    public static float fract(float v) {
-        return v - (float) Math.floor(v);
     }
 
     public static void thickLine(double x1, double y1, double x2, double y2, double thickness, int color) {

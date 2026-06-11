@@ -7,6 +7,7 @@ import foxiwhitee.FoxLib.client.tooltips.theme.*;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameRenderer;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorData;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.client.Minecraft;
@@ -160,11 +161,13 @@ public class TooltipRenderer {
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 
-        float glowPulse = 0.85F + 0.4F * pulse;
-        for (int i = 1; i <= 6; i++) {
-            float layerAlpha = (0.65F / (i + 0.4F)) * glowPulse;
-            int c = TooltipDraw.scaleAlpha(palette.glow, layerAlpha * alphaAppear);
-            TooltipDraw.rect((float) snappedX - i, (float) snappedY - i, (float) snappedX + boxWidth + i, (float) snappedY + boxHeight + i, c);
+        if (theme.isEnableShadow()) {
+            float glowPulse = 0.85F + 0.4F * pulse;
+            for (int i = 1; i <= 6; i++) {
+                float layerAlpha = (0.65F / (i + 0.4F)) * glowPulse;
+                int c = TooltipDraw.scaleAlpha(palette.glow, layerAlpha * alphaAppear);
+                TooltipDraw.rect((float) snappedX - i, (float) snappedY - i, (float) snappedX + boxWidth + i, (float) snappedY + boxHeight + i, c);
+            }
         }
 
         OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
@@ -173,6 +176,10 @@ public class TooltipRenderer {
             drawTextureFrame((float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear, theme.getFrame());
         }
         ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
+        InnerLineConfig innerLineConfig = theme.getInnerLineConfig();
+        if (innerLineConfig != null) {
+            TooltipDraw.drawInnerLine(snappedX, snappedY, boxWidth, boxHeight, innerLineConfig.animationSpeed, innerLineConfig.colors);
+        }
 
         int textX = (int) ((float) snappedX + PADDING + iconOffset);
         int textY = (int) ((float) snappedY + PADDING + 1);

@@ -9,6 +9,7 @@ import java.util.Random;
 
 public class ThemeDecorator {
     private static final float SPAWN_OFFSET = 2F;
+
     public static void emitAndDraw(TooltipTheme theme, ThemePalette palette, List<TooltipParticles.Particle> particles, float dt, float boxX, float boxY, float boxW, float boxH, float time, float appear, boolean particlesEnabled) {
         if (!particlesEnabled) {
             return;

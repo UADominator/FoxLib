@@ -4,6 +4,7 @@ import cpw.mods.fml.common.registry.GameData;
 import foxiwhitee.FoxLib.FoxLib;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleKind;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorConfig;
@@ -23,8 +24,9 @@ public class ThemeRegister {
             List<Integer> colors = Arrays.asList(0x9C8FE0, 0xCFC2FF, 0x9C8FE0, 0x4533A8);
             separators.addSeparator(0, colors);
             ImageFrame frame = new ImageFrame(new ResourceLocation(FoxLib.MODID, "textures/frames/test.png"), 96, 128);
+            InnerLineConfig innerLineConfig = new InnerLineConfig(1, new int[]{0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF});
             ThemeRegister.TOOLTIPS.put("minecraft", new TooltipTheme("test", ForObject.MOD, "minecraft", style,
-                cfg, separators, true, frame));
+                cfg, separators, true, false, frame, innerLineConfig));
         }
         if (stack == null) {
             return null;
