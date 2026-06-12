@@ -17,7 +17,7 @@ public class FoxLibAsmCore implements IFMLLoadingPlugin {
         return new String[] {
             "foxiwhitee.FoxLib.asm.transform.GuiScreenTransformer",
             "foxiwhitee.FoxLib.asm.transform.GuiContainerTransformer",
-            //"foxiwhitee.FoxLib.asm.transform.NeiTooltipTransformer"
+            "foxiwhitee.FoxLib.asm.transform.NeiTooltipTransformer"
         };
     }
 

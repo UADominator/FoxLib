@@ -55,7 +55,7 @@ public class TooltipRenderer {
 
         int maxLineWidth = resolution.getScaledWidth() - 32;
         lines = wrapLines(lines, fontRenderer, maxLineWidth);
-        TooltipTheme theme = ThemeRegister.findTheme(stack);
+        TooltipTheme theme = ThemeRegister.findTheme(stack, lines);
         if (theme == null) {
             return false;
         }
@@ -69,7 +69,7 @@ public class TooltipRenderer {
         }
 
         int textHeight = 8 + Math.max(0, lines.size() - 1) * 11;
-        if (lines.size() > 1) {
+        if (lines.size() > 1 && theme.getSeparatorConfig() != null) {
             textHeight += 6 * Math.min(lines.size() - 1, theme.getSeparatorConfig().getSeparators().size());
         }
 
@@ -178,7 +178,7 @@ public class TooltipRenderer {
         ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
         InnerLineConfig innerLineConfig = theme.getInnerLineConfig();
         if (innerLineConfig != null) {
-            TooltipDraw.drawInnerLine(snappedX, snappedY, boxWidth, boxHeight, innerLineConfig.animationSpeed, innerLineConfig.colors);
+            FrameRenderer.drawInnerLine(snappedX, snappedY, boxWidth, boxHeight, innerLineConfig.animationSpeed, innerLineConfig.colors);
         }
 
         int textX = (int) ((float) snappedX + PADDING + iconOffset);
@@ -198,7 +198,7 @@ public class TooltipRenderer {
             GL11.glPopMatrix();
         }
 
-        if (theme.getSeparatorConfig().getSeparators().isEmpty()) {
+        if (theme.getSeparatorConfig() == null || theme.getSeparatorConfig().getSeparators().isEmpty()) {
             for (int i = 0; i < lines.size(); i++) {
                 fontRenderer.drawStringWithShadow(lines.get(i), textX, textY, 0xFFFFFFFF);
                 textY += (i == 0) ? 10 : 11;

@@ -4,8 +4,10 @@ import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.item.ItemStack;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +21,9 @@ public class TooltipEngine {
     private static int  lastRenderFingerprint = 0;
     private static ItemStack lastHoveredStack = null;
     private static long lastHoveredStackTimeMs = -1L;
+
+    private static Method neiGetStackMethod;
+    private static boolean neiReflectionTried;
 
     private static final String[] PROBLEM_SCREENS = {
         "acclimatiser",
@@ -180,6 +185,37 @@ public class TooltipEngine {
             shouldRenderVanillaTooltip = true;
             return false;
         }
+    }
+
+    @SuppressWarnings("unused")
+    public static boolean renderNeiTooltip(int mouseX, int mouseY, List<?> lines) {
+        long now = System.currentTimeMillis();
+        if (lastHoveredStack == null || (now - lastHoveredStackTimeMs) > STACK_VALIDITY_MS) {
+            ItemStack neiStack = tryGetNeiHoveredStack();
+            if (neiStack != null) {
+                setHoveredStack(neiStack);
+            }
+        }
+        return renderVanillaTooltip(null, lines, mouseX, mouseY, Minecraft.getMinecraft().fontRenderer);
+    }
+
+    private static ItemStack tryGetNeiHoveredStack() {
+        try {
+            if (!neiReflectionTried) {
+                neiReflectionTried = true;
+                Class<?> manager = Class.forName("codechicken.nei.guihook.GuiContainerManager");
+                neiGetStackMethod = manager.getMethod("getStackMouseOver", GuiContainer.class);
+            }
+            if (neiGetStackMethod == null) return null;
+            GuiScreen current = Minecraft.getMinecraft().currentScreen;
+            if (!(current instanceof GuiContainer)) return null;
+            Object result = neiGetStackMethod.invoke(null, current);
+            if (result instanceof ItemStack) {
+                return (ItemStack) result;
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 
     private static List<String> normalize(List<?> lines) {

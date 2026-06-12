@@ -36,15 +36,19 @@ public final class FrameDrawer {
     }
 
     private static void drawBackground(Graphics2D g, FrameStyle s) {
+        int offset = BORDER;
+        int innerSize = SIZE - (BORDER * 2);
+
         Color softBottom = lerp(s.bgBottom, s.bgTop, 0.45F);
-        g.setPaint(new GradientPaint(0, 0, s.bgTop, 0, SIZE, softBottom));
-        g.fillRect(0, 0, SIZE, SIZE);
+        g.setPaint(new GradientPaint(offset, offset, s.bgTop, offset, offset + innerSize, softBottom));
+        g.fillRect(offset, offset, innerSize, innerSize);
 
         Color innerHi = new Color(s.bgTop.getRed(), s.bgTop.getGreen(), s.bgTop.getBlue(), 50);
         g.setPaint(new RadialGradientPaint(SIZE * 0.5F, SIZE * 0.35F, SIZE * 0.6F,
             new float[] { 0F, 1F },
             new Color[] { innerHi, new Color(0, 0, 0, 0) }));
-        g.fillRect(0, 0, SIZE, SIZE);
+
+        g.fillRect(offset, offset, innerSize, innerSize);
     }
 
     private static void drawOuterBorder(Graphics2D g, FrameStyle s) {
@@ -95,7 +99,7 @@ public final class FrameDrawer {
     private static Color brighten(Color c, float amount) {
         int r = (int) (c.getRed() + (255 - c.getRed()) * amount);
         int gg = (int) (c.getGreen() + (255 - c.getGreen()) * amount);
-        int b = (int) (c.getBlue() + (255 - c.getBlue()) * amount);
+        int b = (int) (c.getBlue() + (255 - c.getGreen()) * amount);
         return new Color(clamp(r), clamp(gg), clamp(b), c.getAlpha());
     }
 
