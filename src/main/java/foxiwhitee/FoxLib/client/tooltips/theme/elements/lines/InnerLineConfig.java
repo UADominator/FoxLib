@@ -1,4 +1,4 @@
-package foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline;
+package foxiwhitee.FoxLib.client.tooltips.theme.elements.lines;
 
 public class InnerLineConfig {
     public final float animationSpeed;

@@ -4,7 +4,8 @@ import cpw.mods.fml.common.registry.GameData;
 import foxiwhitee.FoxLib.FoxLib;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
-import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.GlowOutlineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.object.TooltipObjectKey;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.object.ObjectType;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
@@ -43,8 +44,9 @@ public class ThemeRegister {
             separators.addSeparator(0, colors);
             ImageFrame frame = new ImageFrame(new ResourceLocation(FoxLib.MODID, "textures/frames/test.png"), 96, 128);
             InnerLineConfig innerLineConfig = new InnerLineConfig(1, new int[]{0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF});
+            GlowOutlineConfig glowOutlineConfig = new GlowOutlineConfig(6, 0.3f, new int[]{0xFFFF00FF, 0x00000000, 0xFFFF00FF, 0x00000000, 0xFFFF00FF, 0x00000000, 0xFFFF00FF, 0x00000000});
             TooltipTheme theme1 = new TooltipTheme("test", ObjectType.MOD, "minecraft", style,
-                cfg, separators, true, false, false, frame, innerLineConfig);
+                cfg, separators, true, false, false, frame, innerLineConfig, glowOutlineConfig);
             registerTheme(theme1);
 
             style = new FrameStyle(0x1A0A30, 0x0C0420, 0x8030C0, 0x301050, 0xB060FF, 0xE0C0FF, 0.94f);
@@ -53,7 +55,7 @@ public class ThemeRegister {
             colors = Arrays.asList(0xB060FF, 0xE0C0FF, 0xB060FF, 0x8a14ff);
             separators.addSeparator(0, colors);
             TooltipTheme theme2 = new TooltipTheme("stone", ObjectType.ITEM,  "minecraft:stone", style,
-                cfg, separators, true, true, false, frame, innerLineConfig);
+                cfg, separators, true, true, false, frame, innerLineConfig, null);
             registerTheme(theme2);
 
             style = new FrameStyle(0x281C12, 0x140A06, 0xC08040, 0x604018, 0xE0A050, 0xFFD080, 0.94f);
@@ -64,11 +66,11 @@ public class ThemeRegister {
             NBTTagCompound tag = new NBTTagCompound();
             tag.setString("rarity", "rare");
             TooltipTheme theme3 = new TooltipTheme("stone", ObjectType.NBT,  tag, style,
-                cfg, separators, true, true, false, null, innerLineConfig);
+                cfg, separators, true, true, false, null, innerLineConfig, null);
             registerTheme(theme3);
 
             TooltipTheme theme4 = new TooltipTheme("tab", ObjectType.TEXT, "itemGroup.appliedenergistics2", style,
-                cfg, null, false, true, false, null, innerLineConfig);
+                cfg, null, false, true, false, null, innerLineConfig, null);
             registerTheme(theme4);
         }
         boolean stackIsNull = stack == null || stack.getItem() == null;

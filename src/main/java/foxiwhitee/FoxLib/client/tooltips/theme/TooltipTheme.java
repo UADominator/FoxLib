@@ -2,7 +2,8 @@ package foxiwhitee.FoxLib.client.tooltips.theme;
 
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
-import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.GlowOutlineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.object.ObjectType;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorConfig;
@@ -15,13 +16,14 @@ public class TooltipTheme{
     private final FrameStyle style;
     private final ParticleConfig fx;
     private final SeparatorConfig separatorConfig;
+    private final ImageFrame frame;
+    private final InnerLineConfig innerLineConfig;
+    private final GlowOutlineConfig glowOutlineConfig;
     private final boolean drawIcon;
     private final boolean enableShadow;
     private final boolean drawBorder;
-    private final ImageFrame frame;
-    private final InnerLineConfig innerLineConfig;
 
-    public TooltipTheme(String id, ObjectType objectType, Object object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, boolean enableShadow, boolean drawBorder, ImageFrame frame, InnerLineConfig innerLineConfig) {
+    public TooltipTheme(String id, ObjectType objectType, Object object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, boolean enableShadow, boolean drawBorder, ImageFrame frame, InnerLineConfig innerLineConfig, GlowOutlineConfig glowOutlineConfig) {
         this.id = id;
         this.objectType = objectType;
         this.object = object;
@@ -33,6 +35,7 @@ public class TooltipTheme{
         this.drawBorder = drawBorder;
         this.frame = frame;
         this.innerLineConfig = innerLineConfig;
+        this.glowOutlineConfig = glowOutlineConfig;
     }
 
     public String getId() {
@@ -43,12 +46,32 @@ public class TooltipTheme{
         return objectType;
     }
 
+    public Object getObject() {
+        return object;
+    }
+
     public FrameStyle getStyle() {
         return style;
     }
 
-    public Object getObject() {
-        return object;
+    public ParticleConfig getFx() {
+        return fx;
+    }
+
+    public SeparatorConfig getSeparatorConfig() {
+        return separatorConfig;
+    }
+
+    public ImageFrame getFrame() {
+        return frame;
+    }
+
+    public InnerLineConfig getInnerLineConfig() {
+        return innerLineConfig;
+    }
+
+    public GlowOutlineConfig getGlowOutlineConfig() {
+        return glowOutlineConfig;
     }
 
     public boolean isDrawIcon() {
@@ -63,24 +86,8 @@ public class TooltipTheme{
         return drawBorder;
     }
 
-    public SeparatorConfig getSeparatorConfig() {
-        return separatorConfig;
-    }
-
     @Override
     public int hashCode() {
         return id.hashCode();
-    }
-
-    public ParticleConfig getFx() {
-        return fx;
-    }
-
-    public ImageFrame getFrame() {
-        return frame;
-    }
-
-    public InnerLineConfig getInnerLineConfig() {
-        return innerLineConfig;
     }
 }

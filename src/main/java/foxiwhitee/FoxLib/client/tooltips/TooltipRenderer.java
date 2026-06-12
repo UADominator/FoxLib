@@ -7,7 +7,8 @@ import foxiwhitee.FoxLib.client.tooltips.theme.*;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameRenderer;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.FrameStyle;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
-import foxiwhitee.FoxLib.client.tooltips.theme.elements.innerline.InnerLineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.GlowOutlineConfig;
+import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorData;
 import foxiwhitee.FoxLib.config.FoxLibConfig;
 import net.minecraft.client.Minecraft;
@@ -171,14 +172,21 @@ public class TooltipRenderer {
         }
 
         OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
-        FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
-        if (theme.getFrame() != null) {
-            drawTextureFrame((float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear, theme.getFrame());
+
+        GlowOutlineConfig glowOutlineConfig = theme.getGlowOutlineConfig();
+        if (glowOutlineConfig != null) {
+            FrameRenderer.drawGlowOutline(snappedX, snappedY, boxWidth, boxHeight, glowOutlineConfig.glowSize, glowOutlineConfig.animationSpeed, glowOutlineConfig.colors);
         }
+
+        FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
         ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
+
         InnerLineConfig innerLineConfig = theme.getInnerLineConfig();
         if (innerLineConfig != null) {
             FrameRenderer.drawInnerLine(snappedX, snappedY, boxWidth, boxHeight, innerLineConfig.animationSpeed, innerLineConfig.colors);
+        }
+        if (theme.getFrame() != null) {
+            drawTextureFrame((float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear, theme.getFrame());
         }
 
         int textX = (int) ((float) snappedX + PADDING + iconOffset);
