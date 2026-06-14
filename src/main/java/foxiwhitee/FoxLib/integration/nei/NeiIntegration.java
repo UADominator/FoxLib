@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Integration(modid = "NotEnoughItems")
+@SuppressWarnings("unused")
 public class NeiIntegration implements IIntegration {
     private final List<NeiProcessor> processors = new ArrayList<>();
 
@@ -34,6 +35,7 @@ public class NeiIntegration implements IIntegration {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static boolean verifyDependencies(ASMDataTable.ASMData data) {
         List<String> dependencies = (List<String>) data.getAnnotationInfo().getOrDefault("needMods", new ArrayList<String>());
         for (String dep : dependencies) {

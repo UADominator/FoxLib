@@ -10,6 +10,7 @@ import foxiwhitee.FoxLib.client.render.RenderStaticBlock;
 import foxiwhitee.FoxLib.client.render.StaticRender;
 import foxiwhitee.FoxLib.client.render.StaticRenderHandler;
 import foxiwhitee.FoxLib.client.tooltips.TooltipEventHandler;
+import foxiwhitee.FoxLib.client.tooltips.builder.TooltipHandler;
 import foxiwhitee.FoxLib.registries.RegisterUtils;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -25,6 +26,7 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
         MinecraftForge.EVENT_BUS.register(new TooltipEventHandler());
         StaticRenderHandler.loadStaticRenderData(event);
+        TooltipHandler.findAll(event);
     }
 
     public void init(FMLInitializationEvent event) {
@@ -32,6 +34,7 @@ public class ClientProxy extends CommonProxy {
         foxBaseBlockRenderId = RenderingRegistry.getNextAvailableRenderId();
         FoxBaseBlock.setStaticRenderId(foxBaseBlockRenderId);
         RenderingRegistry.registerBlockHandler(new FoxBlockRenderer(foxBaseBlockRenderId));
+        TooltipHandler.init();
 
         for (Map.Entry<Block, StaticRender> entry : StaticRenderHandler.STATIC_RENDER_DATA.entrySet()) {
             RegisterUtils.registerItemRenderer(Item.getItemFromBlock(entry.getKey()), new RenderStaticBlock<>(entry.getValue()));
