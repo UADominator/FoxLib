@@ -107,7 +107,7 @@ public final class ThemeBuilder {
         return this;
     }
 
-    String getId() {
+    public String getId() {
         return id;
     }
 

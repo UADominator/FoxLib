@@ -127,4 +127,26 @@ public class ThemeRegister {
 
         return GameData.getItemRegistry().getNameForObject(stack.getItem());
     }
+
+    public static void removeThemeById(String id) {
+        if (id == null) {
+            return;
+        }
+
+        boolean removed = false;
+        Iterator<TooltipTheme> iterator = TOOLTIPS.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            TooltipTheme theme = iterator.next();
+            if (id.equals(theme.getId())) {
+                iterator.remove();
+                removed = true;
+            }
+        }
+
+        if (removed && !CACHE.isEmpty()) {
+            CACHE.clear();
+        }
+
+    }
 }
