@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @IFMLLoadingPlugin.SortingIndex(1001)
+@SuppressWarnings("all")
 public class MixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     private static boolean isObfuscated = false;
@@ -18,8 +19,7 @@ public class MixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] {
-        };
+        return new String[] {};
     }
 
     @Override
@@ -44,7 +44,6 @@ public class MixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-        return Arrays.asList(
-        );
+        return Arrays.asList();
     }
 }
