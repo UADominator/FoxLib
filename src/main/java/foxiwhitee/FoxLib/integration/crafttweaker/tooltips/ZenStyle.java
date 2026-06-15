@@ -1,7 +1,6 @@
 package foxiwhitee.FoxLib.integration.crafttweaker.tooltips;
 
 import foxiwhitee.FoxLib.client.tooltips.builder.StyleBuilder;
-import minetweaker.api.data.IData;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -41,7 +40,7 @@ public final class ZenStyle {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenStyle all(IData bgTop, IData bgBottom, float bgAlpha, IData borderOuter, IData borderInner, IData accent, IData accentBright) {
+    public ZenStyle all(String bgTop, String bgBottom, float bgAlpha, String borderOuter, String borderInner, String accent, String accentBright) {
         this.internal.all(
             ZenTooltipManager.parseColor(bgTop),
             ZenTooltipManager.parseColor(bgBottom),
@@ -62,7 +61,7 @@ public final class ZenStyle {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenStyle bg(IData bgTop, IData bgBottom, float bgAlpha) {
+    public ZenStyle bg(String bgTop, String bgBottom, float bgAlpha) {
         this.internal.bg(
             ZenTooltipManager.parseColor(bgTop),
             ZenTooltipManager.parseColor(bgBottom),
@@ -78,7 +77,7 @@ public final class ZenStyle {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenStyle border(IData borderOuter, IData borderInner) {
+    public ZenStyle border(String borderOuter, String borderInner) {
         this.internal.border(
             ZenTooltipManager.parseColor(borderOuter),
             ZenTooltipManager.parseColor(borderInner)
@@ -93,7 +92,7 @@ public final class ZenStyle {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenStyle accent(IData accent, IData accentBright) {
+    public ZenStyle accent(String accent, String accentBright) {
         this.internal.accent(
             ZenTooltipManager.parseColor(accent),
             ZenTooltipManager.parseColor(accentBright)

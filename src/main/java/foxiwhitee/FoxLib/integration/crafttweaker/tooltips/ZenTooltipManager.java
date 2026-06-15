@@ -89,23 +89,19 @@ public final class ZenTooltipManager {
     /**
      * Universal data parser transforming ZenScript elements into standard Java signed integer colors.
      * Evaluates raw HEX string definitions cleanly without relying on high-bound integer variables.
-     * @param data Universal ZenScript IData value holder token
+     * @param data Universal ZenScript String value holder token
      * @return Extracted alpha-aware integer color map value code
      */
-    public static int parseColor(IData data) {
+    public static int parseColor(String data) {
         if (data == null) {
             return 0;
         }
-        if (data.asString() != null) {
-            String hex = data.asString().trim();
-            try {
-                return (int) Long.parseLong(hex, 16);
-            } catch (NumberFormatException e) {
-                MineTweakerAPI.logError("Invalid HEX color format specifier detected: '" + hex + "'. Falling back to black.");
-                return 0;
-            }
+        try {
+            return (int) Long.parseLong(data, 16);
+        } catch (NumberFormatException e) {
+            MineTweakerAPI.logError("Invalid HEX color format specifier detected: '" + data + "'. Falling back to black.");
+            return 0;
         }
-        return data.asInt();
     }
 
     public static List<Integer> parseStringArray(String[] hexArray) {

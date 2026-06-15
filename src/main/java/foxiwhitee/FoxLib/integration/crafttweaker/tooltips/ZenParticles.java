@@ -1,7 +1,6 @@
 package foxiwhitee.FoxLib.integration.crafttweaker.tooltips;
 
 import foxiwhitee.FoxLib.client.tooltips.builder.ParticleBuilder;
-import minetweaker.api.data.IData;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -42,7 +41,7 @@ public final class ZenParticles {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenParticles all(int count, float gravity, float speed, float minLife, float maxLife, float width, float height, IData hexColor) {
+    public ZenParticles all(int count, float gravity, float speed, float minLife, float maxLife, float width, float height, String hexColor) {
         this.internal.all(count, gravity, speed, minLife, maxLife, width, height, ZenTooltipManager.parseColor(hexColor));
         return this;
     }
@@ -55,7 +54,7 @@ public final class ZenParticles {
      * @return This wrapper instance for method chaining
      */
     @ZenMethod
-    public ZenParticles data(int count, float gravity, IData hexColor) {
+    public ZenParticles data(int count, float gravity, String hexColor) {
         this.internal.data(count, gravity, ZenTooltipManager.parseColor(hexColor));
         return this;
     }
