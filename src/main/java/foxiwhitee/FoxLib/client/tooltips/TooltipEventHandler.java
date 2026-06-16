@@ -22,7 +22,7 @@ public class TooltipEventHandler {
 
     @Optional.Method(modid = "gtnhlib")
     @SubscribeEvent
-    public void OnDrawGTNH(RenderTooltipEvent event) {
+    public void onDrawGTNH(RenderTooltipEvent event) {
         if (!TooltipEngine.isShouldRenderVanillaTooltip()) {
             event.setCanceled(true);
         }

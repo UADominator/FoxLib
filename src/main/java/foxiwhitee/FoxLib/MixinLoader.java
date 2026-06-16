@@ -44,6 +44,6 @@ public class MixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-        return Arrays.asList();
+        return Arrays.asList("mixins.FoxLib_minecraft.json");
     }
 }

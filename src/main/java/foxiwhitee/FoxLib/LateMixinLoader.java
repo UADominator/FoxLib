@@ -8,12 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @LateMixin
+@SuppressWarnings("unused")
 public class LateMixinLoader implements ILateMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
         return Arrays.asList(
-            "mixins.FoxLib_ae2.json"
+            "mixins.FoxLib_ae2.json",
+            "mixins.FoxLib_nei.json"
         );
     }
 
@@ -21,6 +23,9 @@ public class LateMixinLoader implements ILateMixinLoader {
     public boolean shouldMixinConfigQueue(String mixinConfig) {
         if (mixinConfig.equals("mixins.FoxLib_ae2.json")) {
             return Loader.isModLoaded("appliedenergistics2");
+        }
+        if (mixinConfig.equals("mixins.FoxLib_nei.json")) {
+            return Loader.isModLoaded("NotEnoughItems");
         }
         return true;
     }

@@ -121,17 +121,27 @@ public class TooltipEngine {
     }
 
     @SuppressWarnings("unused")
+    public static boolean renderCreativeTab(Object screen, String line, int mouseX, int mouseY) {
+        System.out.println("renderCreativeTab");
+        return renderVanillaTooltip(screen, Collections.singletonList(line), mouseX, mouseY, Minecraft.getMinecraft().fontRenderer);
+    }
+
+    @SuppressWarnings("unused")
     public static boolean renderVanillaTooltip(Object guiScreen, List<?> lines, int mouseX, int mouseY, Object fontRenderer) {
+        System.out.println(lines);
         try {
             if (lines == null || lines.isEmpty()) {
                 shouldRenderVanillaTooltip = true;
+                System.out.println("renderVanillaTooltip empty");
                 return false;
             }
             if (!FoxLibConfig.enableCustomTooltips) {
+                System.out.println("renderVanillaTooltip false");
                 shouldRenderVanillaTooltip = true;
                 return false;
             }
             if (isProblemScreen()) {
+                System.out.println("renderVanillaTooltip problem");
                 shouldRenderVanillaTooltip = true;
                 return false;
             }
@@ -139,12 +149,14 @@ public class TooltipEngine {
             FontRenderer renderer = fontRenderer instanceof FontRenderer ? (FontRenderer) fontRenderer
                 : Minecraft.getMinecraft().fontRenderer;
             if (renderer == null) {
+                System.out.println("renderVanillaTooltip render is null");
                 shouldRenderVanillaTooltip = true;
                 return false;
             }
 
             List<String> normalized = normalize(lines);
             if (normalized.isEmpty()) {
+                System.out.println("renderVanillaTooltip empty strings");
                 shouldRenderVanillaTooltip = true;
                 return false;
             }
@@ -155,6 +167,7 @@ public class TooltipEngine {
 
             int itemId = (stack == null || stack.getItem() == null) ? 0 : System.identityHashCode(stack.getItem());
             if (itemId != 0 && SLOW_ITEM_IDS.contains(itemId)) {
+                System.out.println("renderVanillaTooltip slow items");
                 shouldRenderVanillaTooltip = true;
                 return false;
             }
