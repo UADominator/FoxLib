@@ -50,8 +50,9 @@ public abstract class GuiScreenMixin {
     }
 
     @Inject(
-        method = "renderToolTip",
-        at = @At("HEAD")
+        method = {"renderToolTip", "func_146285_a(Lnet/minecraft/item/ItemStack;II)V"},
+        at = @At("HEAD"),
+        remap = false
     )
     private void onRenderToolTip(ItemStack stack, int x, int y, CallbackInfo ci) {
         TooltipEngine.setHoveredStack(stack);
