@@ -52,7 +52,7 @@ public class ThemeRegister {
         return switch (theme.getForObject()) {
             case TEXT -> lines.get(0).equals(StatCollector.translateToLocal((String) theme.getObject()));
             case NBT -> checkNBT(stack.getTagCompound(), (NBTTagCompound) theme.getObject());
-            case ITEM -> theme.getObject().equals(getFullName(stack));
+            case ITEM -> theme.getObject().equals(getFullName(stack)) && (theme.getItemDamage() == -1 || stack.getItemDamage() == theme.getItemDamage());
             case MOD -> theme.getObject().equals(getModId(stack));
         };
     }

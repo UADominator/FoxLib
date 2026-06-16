@@ -50,6 +50,7 @@ public class FoxLibConfig {
         "урон",
         "damage",
         "attack damage",
+        "+infinity attack damage",
         "сила атаки"
     };
 

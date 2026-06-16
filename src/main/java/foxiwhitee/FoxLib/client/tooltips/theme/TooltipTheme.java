@@ -12,6 +12,7 @@ public class TooltipTheme{
     private final String id;
     private final ObjectType objectType;
     private final Object object;
+    private int itemDamage = -1;
     private final FrameStyle style;
     private final SeparatorConfig separatorConfig;
     private final ImageFrame frame;
@@ -47,6 +48,14 @@ public class TooltipTheme{
 
     public Object getObject() {
         return object;
+    }
+
+    public int getItemDamage() {
+        return itemDamage;
+    }
+
+    public void setItemDamage(int itemDamage) {
+        this.itemDamage = itemDamage;
     }
 
     public FrameStyle getStyle() {

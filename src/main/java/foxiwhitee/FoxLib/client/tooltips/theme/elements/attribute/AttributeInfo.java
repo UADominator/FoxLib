@@ -765,7 +765,7 @@ public class AttributeInfo {
 
     private static List<Attr> applyInfinityOverrides(ItemStack itemS, List<Attr> attrs) {
         try {
-            String name = ThemeRegister.getFullName(itemS);
+            String name = ThemeRegister.getFullName(itemS).toLowerCase();
             Item item = itemS.getItem();
             boolean avaritia = name.startsWith("avaritia:") || name.contains(".avaritia.") || name.startsWith("avaritia.");
             if (!avaritia || !name.contains("infinity")) {

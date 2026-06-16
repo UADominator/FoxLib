@@ -31,7 +31,7 @@ public class TooltipRenderer {
     private static final RenderItem ITEM_RENDERER = new RenderItem();
     private static final int PADDING = 10;
     private static final int APPEAR_DURATION_MS = 150;
-    private static final float INF_SCALE = 1.6F;
+    private static final float INF_SCALE = 1.0F;
     private static final String INF = "∞";
     private static int cachedDisplayW = -1;
     private static int cachedDisplayH = -1;

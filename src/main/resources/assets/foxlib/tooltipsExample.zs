@@ -33,7 +33,7 @@ val themeTest = TooltipManager.createTheme("test")
     .enableParticles()
     .appendInnerLine(lineTest);
 
-TooltipManager.buildForItem(themeTest, "minecraft:stone");
+TooltipManager.buildForItem(themeTest, "minecraft:stone", -1);
 
 val styleRare = TooltipManager.createStyle("rare")
     .all("281C32", "140A06", 0.94, "C08000", "604008", "E0A030", "FFA000");

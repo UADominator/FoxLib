@@ -9,15 +9,17 @@ public class TooltipBuildAction implements IUndoableAction {
     private final Object target;
     private final BuildType type;
     private final String themeId;
+    private final int damage;
 
     public enum BuildType {
         MOD, ITEM, TEXT, NBT
     }
 
-    public TooltipBuildAction(ZenTheme theme, Object target, BuildType type) {
+    public TooltipBuildAction(ZenTheme theme, Object target, BuildType type, int damage) {
         this.theme = theme;
         this.target = target;
         this.type = type;
+        this.damage = damage;
         this.themeId = (theme != null && theme.getInternal() != null) ? theme.getInternal().getId() : null;
     }
 
@@ -32,7 +34,7 @@ public class TooltipBuildAction implements IUndoableAction {
                 ZenTooltipManager.BRIDGE.callBuildForMod(this.theme.getInternal(), (String) this.target);
                 break;
             case ITEM:
-                ZenTooltipManager.BRIDGE.callBuildForItem(this.theme.getInternal(), (String) this.target);
+                ZenTooltipManager.BRIDGE.callBuildForItem(this.theme.getInternal(), (String) this.target, damage);
                 break;
             case TEXT:
                 ZenTooltipManager.BRIDGE.callBuildForText(this.theme.getInternal(), (String) this.target);

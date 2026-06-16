@@ -347,6 +347,22 @@ public abstract class TooltipProcessor {
     /**
      * Creates and registers a theme using ThemeBuilder and Object
      * @param theme ThemeBuilder that stores theme data
+     * @param item The subject will be applied to the specified subject. In the value of item, write "modId:itemName"
+     * @param damage Item damage
+     * @return This
+     */
+    protected final TooltipProcessor buildForItem(ThemeBuilder theme, String item, int damage) {
+        try {
+            TooltipTheme t = build(theme, item, ObjectType.ITEM);
+            t.setItemDamage(damage);
+            ThemeRegister.registerTheme(t);
+        } catch (Exception ignored) {}
+        return this;
+    }
+
+    /**
+     * Creates and registers a theme using ThemeBuilder and Object
+     * @param theme ThemeBuilder that stores theme data
      * @param mod The theme will be applied to all items in the specified mod. If you want to apply something to Minecraft, just write "minecraft"
      * @return This
      */

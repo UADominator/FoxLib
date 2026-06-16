@@ -65,8 +65,8 @@ public final class ZenTooltipManager {
             this.buildForMod(theme, mod);
         }
 
-        public void callBuildForItem(ThemeBuilder theme, String item) {
-            this.buildForItem(theme, item);
+        public void callBuildForItem(ThemeBuilder theme, String item, int damage) {
+            this.buildForItem(theme, item, damage);
         }
 
         public void callBuildForNBT(ThemeBuilder theme, NBTTagCompound nbt) {
@@ -75,10 +75,6 @@ public final class ZenTooltipManager {
 
         public void callBuildForText(ThemeBuilder theme, String text) {
             this.buildForText(theme, text);
-        }
-
-        public void removeThemeById(String id) {
-            // Твоя кастомна реалізація селективного очищення теми з внутрішніх мап
         }
     }
 
@@ -228,7 +224,7 @@ public final class ZenTooltipManager {
     @ZenMethod
     public static void buildForMod(ZenTheme theme, String modId) {
         if (theme != null && modId != null) {
-            MineTweakerAPI.apply(new TooltipBuildAction(theme, modId, TooltipBuildAction.BuildType.MOD));
+            MineTweakerAPI.apply(new TooltipBuildAction(theme, modId, TooltipBuildAction.BuildType.MOD, -1));
         }
     }
 
@@ -236,11 +232,12 @@ public final class ZenTooltipManager {
      * Binds a completed theme layout definition targeting a single distinct game item definition string.
      * @param theme    The configured input theme profile container
      * @param itemName Minecraft registry identification tag lookup path
+     * @param damage Item damage
      */
     @ZenMethod
-    public static void buildForItem(ZenTheme theme, String itemName) {
+    public static void buildForItem(ZenTheme theme, String itemName, int damage) {
         if (theme != null && itemName != null) {
-            MineTweakerAPI.apply(new TooltipBuildAction(theme, itemName, TooltipBuildAction.BuildType.ITEM));
+            MineTweakerAPI.apply(new TooltipBuildAction(theme, itemName, TooltipBuildAction.BuildType.ITEM, damage));
         }
     }
 
@@ -252,7 +249,7 @@ public final class ZenTooltipManager {
     @ZenMethod
     public static void buildForText(ZenTheme theme, String text) {
         if (theme != null && text != null) {
-            MineTweakerAPI.apply(new TooltipBuildAction(theme, text, TooltipBuildAction.BuildType.TEXT));
+            MineTweakerAPI.apply(new TooltipBuildAction(theme, text, TooltipBuildAction.BuildType.TEXT, -1));
         }
     }
 
@@ -268,7 +265,7 @@ public final class ZenTooltipManager {
         }
         NBTBase parsedNBT = convertDataToNBT(data);
         if (parsedNBT instanceof NBTTagCompound) {
-            MineTweakerAPI.apply(new TooltipBuildAction(theme, parsedNBT, TooltipBuildAction.BuildType.NBT));
+            MineTweakerAPI.apply(new TooltipBuildAction(theme, parsedNBT, TooltipBuildAction.BuildType.NBT, -1));
         }
     }
 
