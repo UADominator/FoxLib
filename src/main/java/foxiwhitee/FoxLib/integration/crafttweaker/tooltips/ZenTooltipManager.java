@@ -33,10 +33,6 @@ public final class ZenTooltipManager {
             return this.createStyle(id);
         }
 
-        public ParticleBuilder callCreateParticles(String id, ParticleBuilder.Kind kind) {
-            return this.createParticles(id, kind);
-        }
-
         public SeparatorBuilder callCreateSeparator(String id) {
             return this.createSeparator(id);
         }
@@ -160,24 +156,6 @@ public final class ZenTooltipManager {
     @ZenMethod
     public static ZenStyle createStyle(String id) {
         return new ZenStyle(BRIDGE.callCreateStyle(id));
-    }
-
-    /**
-     * Instantiates an active atmospheric particle emission layout structure profile.
-     * @param id   Unique identification lookup key
-     * @param kind Emitter display layout profile ("EMBER", "SPORE", "STAR", "SPARK")
-     * @return ZenScript compatible wrapper binding ParticleBuilder functionality
-     */
-    @ZenMethod
-    public static ZenParticles createParticles(String id, String kind) {
-        ParticleBuilder.Kind particleKind;
-        try {
-            particleKind = ParticleBuilder.Kind.valueOf(kind.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            MineTweakerAPI.logError("Unknown particle layout type specifier: " + kind + ". Defaulting to STAR.");
-            particleKind = ParticleBuilder.Kind.STAR;
-        }
-        return new ZenParticles(BRIDGE.callCreateParticles(id, particleKind));
     }
 
     /**

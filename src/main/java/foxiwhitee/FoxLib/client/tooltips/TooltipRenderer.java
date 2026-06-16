@@ -126,13 +126,12 @@ public class TooltipRenderer {
         int effectiveAppearMs = Math.max(1, Math.round(APPEAR_DURATION_MS / speed));
 
         TooltipState state = TooltipState.get(now, hash, effectiveAppearMs, theme);
-        float dt = TooltipParticles.advance(now);
+        float dt = OuterHalo.advance(now);
 
         float rawX = targetX;
         float rawY = targetY;
 
         float appearProgress = TooltipDraw.clamp01((now - state.hoverStartMs) / (float) effectiveAppearMs);
-        float appear = TooltipDraw.smootherStep(appearProgress);
         float scaleAppear = TooltipDraw.easeOutCubic(appearProgress);
         float alphaAppear = TooltipDraw.easeOutCubic(appearProgress);
 
@@ -170,8 +169,9 @@ public class TooltipRenderer {
                 TooltipDraw.rect((float) snappedX - i, (float) snappedY - i, (float) snappedX + boxWidth + i, (float) snappedY + boxHeight + i, c);
             }
         }
-
-        OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
+        if (theme.isEnableParticles()) {
+            OuterHalo.update(dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, palette, alphaAppear);
+        }
 
         GlowOutlineConfig glowOutlineConfig = theme.getGlowOutlineConfig();
         if (glowOutlineConfig != null) {
@@ -179,7 +179,6 @@ public class TooltipRenderer {
         }
 
         FrameRenderer.drawNineSlice(theme, (float) snappedX, (float) snappedY, boxWidth, boxHeight, alphaAppear);
-        ThemeDecorator.emitAndDraw(theme, palette, state.particles, dt, (float) snappedX, (float) snappedY, boxWidth, boxHeight, t, appear, true);
 
         InnerLineConfig innerLineConfig = theme.getInnerLineConfig();
         if (innerLineConfig != null) {

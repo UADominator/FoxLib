@@ -19,7 +19,6 @@ import java.util.*;
 public abstract class TooltipProcessor {
     private final Map<String, ThemeBuilder> builders = new LinkedHashMap<>();
     private final Map<String, StyleBuilder> styleBuilders = new LinkedHashMap<>();
-    private final Map<String, ParticleBuilder> particleBuilders = new LinkedHashMap<>();
     private final Map<String, SeparatorBuilder> separatorBuilders = new LinkedHashMap<>();
     private final Map<String, InnerLineBuilder> innerLineBuilders = new LinkedHashMap<>();
     private final Map<String, GlowOutlineBuilder> glowOutlineBuilders = new LinkedHashMap<>();
@@ -50,17 +49,6 @@ public abstract class TooltipProcessor {
     protected final StyleBuilder createStyle(String localName) {
         StyleBuilder builder = new StyleBuilder();
         styleBuilders.put(localName, builder);
-        return builder;
-    }
-
-    /**
-     * Creates a ParticleBuilder and stores by localName for easy invocation
-     * @param localName Unique name in the middle of the TooltipProcessor to conveniently call ParticleBuilder from the cache
-     * @return Created ParticleBuilder
-     */
-    protected final ParticleBuilder createParticles(String localName, ParticleBuilder.Kind kind) {
-        ParticleBuilder builder = new ParticleBuilder(kind);
-        particleBuilders.put(localName, builder);
         return builder;
     }
 
@@ -199,25 +187,6 @@ public abstract class TooltipProcessor {
      */
     protected final StyleBuilder getLastStyle() {
         return styleBuilders.values().stream()
-            .reduce((first, second) -> second)
-            .orElse(null);
-    }
-
-    /**
-     * Find ParticleBuilder by its localName
-     * @param localName Unique name in the middle of the TooltipProcessor to conveniently call ParticleBuilder from the cache
-     * @return ParticleBuilder
-     */
-    protected final ParticleBuilder getParticles(String localName) {
-        return particleBuilders.get(localName);
-    }
-
-    /**
-     * Find the last created ParticleBuilder
-     * @return Last created ParticleBuilder
-     */
-    protected final ParticleBuilder getLastParticles() {
-        return particleBuilders.values().stream()
             .reduce((first, second) -> second)
             .orElse(null);
     }
@@ -392,11 +361,11 @@ public abstract class TooltipProcessor {
         boolean hasIcon = type != ObjectType.TEXT && theme.isHasIcon();
 
         return new TooltipTheme(theme.getId(), type, object, theme.getStyle().build(),
-            theme.getParticles() == null ? null : theme.getParticles().build(),
             theme.getSeparator() == null ? null : theme.getSeparator().build(),
             hasIcon, theme.isEnableShadow(), theme.isDrawBorder(),
             theme.getFrame() == null ? null : theme.getFrame().build(),
             theme.getInnerLine() == null ? null : theme.getInnerLine().build(),
-            theme.getGlowOutline() == null ? null : theme.getGlowOutline().build());
+            theme.getGlowOutline() == null ? null : theme.getGlowOutline().build(),
+            theme.isEnableParticles());
     }
 }

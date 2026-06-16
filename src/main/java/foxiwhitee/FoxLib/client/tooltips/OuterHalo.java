@@ -12,7 +12,25 @@ public final class OuterHalo {
 
     private static final List<Dot> GLOBAL_POOL = new ArrayList<>();
     private static final ArrayDeque<Dot> FREE_LIST = new ArrayDeque<>(96);
+    private static final float TICK_FALLBACK_SECONDS = 1.0F / 60.0F;
+    private static long lastTickMs = -1L;
     private static final Random RNG = new Random();
+
+    public static float advance(long nowMs) {
+        long prev = lastTickMs;
+        lastTickMs = nowMs;
+        if (prev < 0L) {
+            return TICK_FALLBACK_SECONDS;
+        }
+        float dt = (nowMs - prev) / 1000.0F;
+        if (dt < 0.0F) {
+            dt = 0.0F;
+        }
+        if (dt > 0.1F) {
+            dt = 0.1F;
+        }
+        return dt;
+    }
 
     private static Dot acquireDot() {
         Dot d = FREE_LIST.pollLast();

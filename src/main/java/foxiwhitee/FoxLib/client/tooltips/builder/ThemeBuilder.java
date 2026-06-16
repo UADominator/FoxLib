@@ -9,8 +9,8 @@ public final class ThemeBuilder {
     private boolean hasIcon;
     private boolean enableShadow;
     private boolean drawBorder;
+    private boolean enableParticles;
     private StyleBuilder styleBuilder;
-    private ParticleBuilder particleBuilder;
     private SeparatorBuilder separatorBuilder;
     private FrameBuilder frameBuilder;
     private InnerLineBuilder innerLineBuilder;
@@ -39,6 +39,15 @@ public final class ThemeBuilder {
     }
 
     /**
+     * Enables a particles around the tooltip
+     * @return This
+     */
+    public ThemeBuilder enableParticles() {
+        this.enableParticles = true;
+        return this;
+    }
+
+    /**
      * Enables drawing a frame around the tooltip
      * @return This
      */
@@ -54,16 +63,6 @@ public final class ThemeBuilder {
      */
     public ThemeBuilder appendStyle(StyleBuilder style) {
         this.styleBuilder = style;
-        return this;
-    }
-
-    /**
-     * Remembers which particles to use
-     * @param particles Particles data
-     * @return This
-     */
-    public ThemeBuilder appendParticles(ParticleBuilder particles) {
-        this.particleBuilder = particles;
         return this;
     }
 
@@ -123,12 +122,12 @@ public final class ThemeBuilder {
         return drawBorder;
     }
 
-    StyleBuilder getStyle() {
-        return styleBuilder;
+    boolean isEnableParticles() {
+        return enableParticles;
     }
 
-    ParticleBuilder getParticles() {
-        return particleBuilder;
+    StyleBuilder getStyle() {
+        return styleBuilder;
     }
 
     SeparatorBuilder getSeparator() {

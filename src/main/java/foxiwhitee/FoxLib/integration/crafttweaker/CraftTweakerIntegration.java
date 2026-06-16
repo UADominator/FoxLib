@@ -24,7 +24,6 @@ public class CraftTweakerIntegration implements IIntegration {
         MineTweakerAPI.registerClass(ZenFrame.class);
         MineTweakerAPI.registerClass(ZenGlowOutline.class);
         MineTweakerAPI.registerClass(ZenInnerLine.class);
-        MineTweakerAPI.registerClass(ZenParticles.class);
         MineTweakerAPI.registerClass(ZenSeparator.class);
         MineTweakerAPI.registerClass(ZenStyle.class);
         MineTweakerAPI.registerClass(ZenTheme.class);

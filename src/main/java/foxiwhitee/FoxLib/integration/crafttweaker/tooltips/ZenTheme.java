@@ -49,6 +49,16 @@ public final class ZenTheme {
     }
 
     /**
+     * Enables pixel flickering around tooltip
+     * @return This builder wrapper instance driving continuous interface chaining
+     */
+    @ZenMethod
+    public ZenTheme enableParticles() {
+        this.internal.enableParticles();
+        return this;
+    }
+
+    /**
      * Instructs layout passes to draw a basic linear perimeter loop surrounding elements.
      * @return This builder wrapper instance driving continuous interface chaining
      */
@@ -66,17 +76,6 @@ public final class ZenTheme {
     @ZenMethod
     public ZenTheme appendStyle(ZenStyle style) {
         this.internal.appendStyle(style.getInternal());
-        return this;
-    }
-
-    /**
-     * Plugs an active drifting atmospheric matrix module into this localized theme canvas.
-     * @param particles Shell tracking atmospheric emitter properties and limits
-     * @return This builder wrapper instance driving continuous interface chaining
-     */
-    @ZenMethod
-    public ZenTheme appendParticles(ZenParticles particles) {
-        this.internal.appendParticles(particles.getInternal());
         return this;
     }
 

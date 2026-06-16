@@ -5,7 +5,6 @@ import foxiwhitee.FoxLib.client.tooltips.theme.elements.frame.ImageFrame;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.GlowOutlineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.lines.InnerLineConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.object.ObjectType;
-import foxiwhitee.FoxLib.client.tooltips.theme.elements.particle.ParticleConfig;
 import foxiwhitee.FoxLib.client.tooltips.theme.elements.separator.SeparatorConfig;
 
 @SuppressWarnings("unused")
@@ -14,7 +13,6 @@ public class TooltipTheme{
     private final ObjectType objectType;
     private final Object object;
     private final FrameStyle style;
-    private final ParticleConfig fx;
     private final SeparatorConfig separatorConfig;
     private final ImageFrame frame;
     private final InnerLineConfig innerLineConfig;
@@ -22,13 +20,14 @@ public class TooltipTheme{
     private final boolean drawIcon;
     private final boolean enableShadow;
     private final boolean drawBorder;
+    private final boolean enableParticles;
 
-    public TooltipTheme(String id, ObjectType objectType, Object object, FrameStyle style, ParticleConfig fx, SeparatorConfig separatorConfig, boolean drawIcon, boolean enableShadow, boolean drawBorder, ImageFrame frame, InnerLineConfig innerLineConfig, GlowOutlineConfig glowOutlineConfig) {
+    public TooltipTheme(String id, ObjectType objectType, Object object, FrameStyle style, SeparatorConfig separatorConfig, boolean drawIcon, boolean enableShadow, boolean drawBorder, ImageFrame frame, InnerLineConfig innerLineConfig, GlowOutlineConfig glowOutlineConfig, boolean enableParticles) {
         this.id = id;
         this.objectType = objectType;
         this.object = object;
         this.style = style;
-        this.fx = fx;
+        this.enableParticles = enableParticles;
         this.separatorConfig = separatorConfig;
         this.drawIcon = drawIcon;
         this.enableShadow = enableShadow;
@@ -52,10 +51,6 @@ public class TooltipTheme{
 
     public FrameStyle getStyle() {
         return style;
-    }
-
-    public ParticleConfig getFx() {
-        return fx;
     }
 
     public SeparatorConfig getSeparatorConfig() {
@@ -84,6 +79,10 @@ public class TooltipTheme{
 
     public boolean isDrawBorder() {
         return drawBorder;
+    }
+
+    public boolean isEnableParticles() {
+        return enableParticles;
     }
 
     @Override
