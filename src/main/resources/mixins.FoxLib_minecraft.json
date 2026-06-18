@@ -9,10 +9,7 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "GuiScreenMixin",
-    "LocaleMixin",
-    "FontRendererMixin",
-    "MinecraftMixin"
+    "GuiScreenMixin"
   ],
   "client": [],
   "server": []
