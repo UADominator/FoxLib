@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(FontRenderer.class)
 public abstract class FontRendererMixin {
 
-    // TODO: fix font image with angelica
     @Dynamic
     @ModifyConstant(
         // TODO: fuck reobf in dev or real minecraft environment. here only 3 methods
